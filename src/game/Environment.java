@@ -20,11 +20,11 @@ public class Environment {
 	private Mountains layer3;
 	private Earth layer4;
 	private Clouds clouds;
-	private Cabins cabins;
+	private Factories factories;
 	private Mines mines;
 	private Trees trees;
 	private Rocks rocks;
-	public static People people;
+    private Player player;
 	
 	public Environment(){
 		mainX = (GamePanel.getWidth()/2)-((tileCount*tileSize)/2);
@@ -39,22 +39,19 @@ public class Environment {
 		rate2 = 0.50;
 		rate3 = 0.75;
 		rate4 = 1.0;
-		cabins = new Cabins();
+		factories = new Factories();
 		mines = new Mines();
 		trees = new Trees();
 		rocks = new Rocks();
 		clouds = new Clouds();
-		people = new People();
+        player = new Player(layer4.getWidth() / 2, 0);
 		//test
-		cabins.add(layer4.getWidth()/2);
-		mines.add((layer4.getWidth()/2)-256);
-		for (int i = 0; i < 12; i++) 
+		factories.add(layer4.getWidth() / 2); //add factory_wood to the center of the map
+		for (int i = 0; i < 24; i++)
 		trees.add((int)(Math.random()*layer4.getWidth()), 0);
 		for (int i = 0; i < 8; i++) 
 		rocks.add((int)(Math.random()*layer4.getWidth()), 0);
 		clouds.construct(layer4.getWidth());
-		for (int i = 0; i < 4; i++) 
-		people.add(((int)(Math.random()*256)-128)+(layer4.getWidth()/2), 0);
 		//draw mountains
 		addMountains();
 	}
@@ -65,13 +62,13 @@ public class Environment {
 		layer3.draw(canvas, paint);
 		layer4.draw(canvas, paint);
 		//objects
-		
 		clouds.draw(canvas, paint); //draw clouds
 		rocks.draw(canvas, paint);  //draw rocks
 		trees.draw(canvas, paint);  //draw trees
-		cabins.draw(canvas, paint); //draw cabins
+		factories.draw(canvas, paint); //draw factories
 		mines.draw(canvas, paint);
-		people.draw(canvas, paint);
+        //player
+        player.draw(canvas, paint);
 	}
 	public void update(double mod){
 		//mountains
@@ -80,56 +77,52 @@ public class Environment {
 		layer3.update(mod, (mainX-(downX-dragX))*rate3, mainY);
 		layer4.update(mod, (mainX-(downX-dragX))*rate4, mainY);
 		//objects
-		cabins.update(mod, (mainX-(downX-dragX))*rate4, mainY);//cabins
+		factories.update(mod, (mainX - (downX - dragX)) * rate4, mainY);//factories
 		mines.update(mod,  (mainX-(downX-dragX))*rate4, mainY);//mines
 		clouds.update(mod, (mainX-(downX-dragX))*rate4, mainY);//clouds
 		trees.update(mod,  (mainX-(downX-dragX))*rate4, mainY);
 		rocks.update(mod,  (mainX-(downX-dragX))*rate4, mainY);
-		people.update(mod, (mainX-(downX-dragX))*rate4, mainY);
+        //player
+        player.update(mod,  (mainX-(downX-dragX))*rate4, mainY);
 	}
 	public void down(int x1, int y1){
 		downX = dragX = x1;
-		if (!Game.gui.isVisible()){
-			cabins.down(x1,y1);
-			mines.down(x1, y1);
-			trees.down(x1, y1);
-			rocks.down(x1, y1);
-		}
+		factories.down(x1, y1);
+		mines.down(x1, y1);
+		trees.down(x1, y1);
+		rocks.down(x1, y1);
 	}
 	public void move(int x1, int y1){
 		//check drag
-		if (!Game.gui.isVisible()){
-			dragX = x1;
-			if (mainX-(downX-dragX) > 0){ mainX = 0; downX = x1;}
-			else if (mainX-(downX-dragX) < -(layer4.getWidth() - GamePanel.getWidth())) {
-				mainX = -(layer4.getWidth() - GamePanel.getWidth());
-				downX = x1;
-			}
-			cabins.move(x1, y1, Math.abs(downX-dragX));
-			mines.move(x1, y1, Math.abs(downX-dragX));
-			trees.move(x1, y1, Math.abs(downX-dragX));
-			rocks.move(x1, y1, Math.abs(downX-dragX));
+		dragX = x1;
+		if (mainX-(downX-dragX) > 0){ mainX = 0; downX = x1;}
+		else if (mainX-(downX-dragX) < -(layer4.getWidth() - GamePanel.getWidth())) {
+			mainX = -(layer4.getWidth() - GamePanel.getWidth());
+			downX = x1;
 		}
+		factories.move(x1, y1, Math.abs(downX - dragX));
+		mines.move(x1, y1, Math.abs(downX-dragX));
+		trees.move(x1, y1, Math.abs(downX-dragX));
+		rocks.move(x1, y1, Math.abs(downX-dragX));
 	}
 	public void up(int x1, int y1){
-		//check cabins
-		if (!Game.gui.isVisible()){
-			//release drag
-			mainX -= (downX-dragX);
-			mainY -= (downY-dragY);
-			deselectAll();
-			objectiveX = -mainX + x1;
-			if (cabins.up(x1, y1, Math.abs(downX-dragX))){ Game.gui.setGUI(3); }
-			else if (mines.up(x1, y1, Math.abs(downX-dragX))){ Game.gui.setGUI(4); }
-			else if (trees.up(x1, y1, Math.abs(downX-dragX))){ Game.gui.setGUI(6); }
-			else if (rocks.up(x1, y1, Math.abs(downX-dragX))){ Game.gui.setGUI(7); }
-		}
+		//check factories
+		//release drag
+		mainX -= (downX-dragX);
+		mainY -= (downY-dragY);
+		deselectAll();
+		objectiveX = -mainX + x1;
+		if (factories.up(x1, y1, Math.abs(downX-dragX))){  }
+		else if (mines.up(x1, y1, Math.abs(downX-dragX))){  }
+		else if (trees.up(x1, y1, Math.abs(downX-dragX))){  }
+		else if (rocks.up(x1, y1, Math.abs(downX-dragX))){  }
+        else player.setTarget(-mainX + x1,y1,(downX-dragX)); //move player
 		downX = downY = dragX = dragY = 0;
 	}
 	public void deselectAll(){
 		trees.deselectAll();
 		rocks.deselectAll();
-		cabins.deselectAll();
+		factories.deselectAll();
 		mines.deselectAll();
 	}
 	public void addMountains(){

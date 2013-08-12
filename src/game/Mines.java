@@ -53,7 +53,7 @@ public class Mines {
 		mines.get(j).showBorder(false); 
 	}
 	/*
-	 * Cabin class
+	 * Factory class
 	 */
 	public static class Mine {
 		private SpriteSheet sprite;
@@ -70,7 +70,7 @@ public class Mines {
 		private int height;
 		
 		public Mine(int x){
-			sprite = new SpriteSheet(GamePanel.textures.mine, 6, 6, 0.5);
+			sprite = new SpriteSheet(GamePanel.textures.mine_wood, 6, 6, 0.5);
 			width = sprite.getBitWidth();
 			height = sprite.getBitHeight();
 			//create border properties

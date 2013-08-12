@@ -55,8 +55,8 @@ public class Clouds {
 			
 			int width = sprite.getBitWidth();
 			int height = sprite.getBitHeight();
-			sprite.build(x1,y1,width*4,height*4);
-			shadow.build(x1,y1,width*4,height*4);
+			sprite.update(x1,y1,width*4,height*4);
+			shadow.update(x1,y1,width*4,height*4);
 			sprite.animate((int)(Math.random()*6));
 			shadow.animate(6);
 			cloudX = x1;

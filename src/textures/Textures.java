@@ -11,30 +11,38 @@ import android.graphics.Paint;
 import android.view.View;
 
 public class Textures extends View {
-	//public Bitmap player; //player texture
-	public Bitmap start, terrain, mountain, cabin, clouds, trees, people, rocks, mine,
-		build, cancel, upgrade, farm, type, typeBold;
+	//game textures
+	public Bitmap terrain, mine_wood, mine_metal,
+        clouds, trees, people, rocks, factory_wood, factory_metal;
+
+    //gui textures
+    public Bitmap start, arrow, build_mine, build_factory, build_tree,
+        exit, farm, upgrade, type, typeBold;
 	public Textures(Context context){
 		super(context);
 		//set up bitmap for all sdk's
 		BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Config.ARGB_8888;  // API Level 1          
         options.inScaled = false;
-        //initialize bitmaps
+        //game textures
 		terrain = BitmapFactory.decodeResource(getResources(), R.drawable.terrain, options);
-		cabin = BitmapFactory.decodeResource(getResources(), R.drawable.cabin, options);
+        mine_wood = BitmapFactory.decodeResource(getResources(), R.drawable.mine_wood, options);
+        mine_metal = BitmapFactory.decodeResource(getResources(), R.drawable.mine_metal, options);
+		factory_wood = BitmapFactory.decodeResource(getResources(), R.drawable.factory_wood, options);
+        factory_metal = BitmapFactory.decodeResource(getResources(), R.drawable.factory_metal, options);
 		clouds = BitmapFactory.decodeResource(getResources(), R.drawable.clouds, options);
 		trees = BitmapFactory.decodeResource(getResources(), R.drawable.trees, options);
 		people = BitmapFactory.decodeResource(getResources(), R.drawable.people, options);
 		rocks = BitmapFactory.decodeResource(getResources(), R.drawable.rocks, options);
-		mine = BitmapFactory.decodeResource(getResources(), R.drawable.mine, options);
-		//buttons
+		//gui
 		start = BitmapFactory.decodeResource(getResources(), R.drawable.start, options);
-		build = BitmapFactory.decodeResource(getResources(), R.drawable.build, options);
-		cancel = BitmapFactory.decodeResource(getResources(), R.drawable.cancel, options);
+		build_tree = BitmapFactory.decodeResource(getResources(), R.drawable.build_tree, options);
+        build_mine = BitmapFactory.decodeResource(getResources(), R.drawable.build_mine, options);
+        build_factory = BitmapFactory.decodeResource(getResources(), R.drawable.build_factory, options);
+		exit = BitmapFactory.decodeResource(getResources(), R.drawable.exit, options);
+        farm = BitmapFactory.decodeResource(getResources(), R.drawable.farm, options);
 		upgrade = BitmapFactory.decodeResource(getResources(), R.drawable.upgrade, options);
-		farm = BitmapFactory.decodeResource(getResources(), R.drawable.farm, options);
-		//type
+        arrow = BitmapFactory.decodeResource(getResources(), R.drawable.arrow, options);
 		type = BitmapFactory.decodeResource(getResources(), R.drawable.type, options);
 		typeBold = BitmapFactory.decodeResource(getResources(), R.drawable.typebold, options);
 	}
