@@ -1,11 +1,13 @@
 package textures;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Rect;
 
 public class SpriteSheet {
 	private int bitWidth, bitHeight, spriteWidth, spriteHeight, hFrames, vFrames, frames, x, y;
-	private double currentFrame, rate;
+	private double currentFrame, rate, ratio;
 	private boolean finished, centered;
 	private Rect spriteRect, destRect;
 	private Bitmap bitmap;
@@ -83,6 +85,14 @@ public class SpriteSheet {
 		bitHeight = ySize;
 		update(x,y);
 	}
+    public void draw(Canvas canvas){
+        //this will draw the bitmap
+        canvas.drawBitmap(bitmap, spriteRect, destRect, null);
+    }
+    public void draw(Canvas canvas, Paint paint){
+        //this will draw the bitmap
+        canvas.drawBitmap(bitmap, spriteRect, destRect, paint);
+    }
 	public void updateSprite(int x1, int y1, int x2, int y2){
 		spriteRect.top = y1;
 		spriteRect.right = x2;
@@ -103,6 +113,13 @@ public class SpriteSheet {
 		this.bitWidth=bitWidth;
 		this.bitHeight=bitHeight;
 	}
+    public void resize(double ratio){
+        this.ratio=ratio;
+        bitWidth *= ratio;
+        bitHeight *= ratio;
+        resize(bitWidth, bitHeight);
+        update(x, y);
+    }
 	public void reset(){
 		currentFrame=0;
 		bitWidth=bitmap.getWidth()/hFrames;
@@ -120,6 +137,8 @@ public class SpriteSheet {
 	public Rect getSpriteRect(){ return spriteRect; }
 	public int getBitWidth(){ return bitWidth; }
 	public int getBitHeight(){ return bitHeight; }
+    public int getOriginalBitWidth(){ return bitmap.getWidth(); }
+    public int getOriginalBitHeight(){ return bitmap.getHeight(); }
 	public int getHFrames(){ return hFrames; }
 	public int getVFrames(){ return vFrames; }
 	public int getSpriteWidth(){ return spriteWidth; }
@@ -131,6 +150,7 @@ public class SpriteSheet {
 	public int getX(){ return x; }
 	public int getY(){ return y; }
 	public double getRate(){ return rate; }
+    public double getRatio(){ return ratio; }
 	public void center(){ centered = true; }
 	public boolean isCentered(){ return centered; }
 	public boolean isFinished(){ return finished; }

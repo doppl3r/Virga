@@ -27,28 +27,28 @@ public class Game {
 			if (time > 1440) time %= 1440;
 			else time += (mod*25);
 			//update game components
+            gui.update(mod);
 			sky.update(mod, time);
 			land.update(mod);
-			gui.update(mod);
 		}
 	}
 	public void setActivity(boolean isActive){ this.isActive=isActive; }
 	public void down(int x, int y){
 		if (isActive){
+            gui.down(x, y);
 			land.down(x, y);
-			gui.down(x, y);
 		}
 	}
 	public void move(int x, int y){
 		if (isActive){
+            gui.move(x, y);
 			land.move(x, y);
-			gui.move(x, y);
 		}
 	}
 	public void up(int x, int y){
 		if (isActive){
+            gui.up(x, y);
 			land.up(x, y);
-			gui.up(x, y);
 		}
 	}
 	public float getTime(){ return time; }

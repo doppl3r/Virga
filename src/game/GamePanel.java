@@ -47,7 +47,11 @@ public class GamePanel {
 		}
 		//draw fps
 		paint.setARGB(255,255,255,255);
-		canvas.drawText("FPS: "+fps, 4, 24, paint);
+
+
+		//canvas.drawText("FPS: "+fps, 4, 24, paint);
+
+
 		//Log.d("mod: "+mod,"fps"+fps);
 	}
 	public void update(){

@@ -27,17 +27,20 @@ public class Mines {
 		
 	}
 	public void move(int x1, int y1, int difference){
-		if (difference > 32 && select == true){
-			select = false;
-			deselectAll();
-		}
-		
+        if (difference > 32 && select == true){
+            if (select){
+                deselectAll();
+                Game.gui.resetGUI();
+                select = false;
+            }
+        }
 	}
 	public boolean up(int x1, int y1, int difference){
 		boolean up = false;
 		if (difference <= 32){
 			for (int i = mines.size()-1; i >= 0; i--){
 				if (mines.get(i).select(x1, y1) && !mines.get(i).showBorder){
+                    Game.gui.setGUI(false,false,false,true,false,true);
 					up = true;
 					deselectAll();
 					select = true;

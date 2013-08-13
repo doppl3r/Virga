@@ -23,7 +23,7 @@ public class Mountains{
 	}
 	public void update(double mod, double mainX, double mainY){
 		for (int i = 0; i < size(); i++){
-			sprites.get(i).update(mainX+sprites.get(i).getX(), 
+			sprites.get(i).update(mainX+sprites.get(i).getX(),
 					mainY+sprites.get(i).getY());
 		}
 	}

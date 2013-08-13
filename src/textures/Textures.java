@@ -13,11 +13,12 @@ import android.view.View;
 public class Textures extends View {
 	//game textures
 	public Bitmap terrain, mine_wood, mine_metal,
-        clouds, trees, people, rocks, factory_wood, factory_metal;
+            clouds, trees, people, rocks, factory_wood, factory_metal,
+            wood, rock, metal;
 
     //gui textures
     public Bitmap start, arrow, build_mine, build_factory, build_tree,
-        exit, farm, upgrade, type, typeBold;
+        exit, farm, upgrade, text1, text2;
 	public Textures(Context context){
 		super(context);
 		//set up bitmap for all sdk's
@@ -34,6 +35,9 @@ public class Textures extends View {
 		trees = BitmapFactory.decodeResource(getResources(), R.drawable.trees, options);
 		people = BitmapFactory.decodeResource(getResources(), R.drawable.people, options);
 		rocks = BitmapFactory.decodeResource(getResources(), R.drawable.rocks, options);
+        wood = BitmapFactory.decodeResource(getResources(), R.drawable.wood, options);
+        rock = BitmapFactory.decodeResource(getResources(), R.drawable.rock, options);
+        metal = BitmapFactory.decodeResource(getResources(), R.drawable.metal, options);
 		//gui
 		start = BitmapFactory.decodeResource(getResources(), R.drawable.start, options);
 		build_tree = BitmapFactory.decodeResource(getResources(), R.drawable.build_tree, options);
@@ -43,8 +47,8 @@ public class Textures extends View {
         farm = BitmapFactory.decodeResource(getResources(), R.drawable.farm, options);
 		upgrade = BitmapFactory.decodeResource(getResources(), R.drawable.upgrade, options);
         arrow = BitmapFactory.decodeResource(getResources(), R.drawable.arrow, options);
-		type = BitmapFactory.decodeResource(getResources(), R.drawable.type, options);
-		typeBold = BitmapFactory.decodeResource(getResources(), R.drawable.typebold, options);
+		text1 = BitmapFactory.decodeResource(getResources(), R.drawable.text1, options);
+		text2 = BitmapFactory.decodeResource(getResources(), R.drawable.text2, options);
 	}
 	public Bitmap renderMatrix(int[][] matrix, SpriteSheet sprite, int scale){
 		//set up paint/canvas properties

@@ -10,6 +10,7 @@ import android.os.Vibrator;
 public class Button {
 	private boolean pressed, hide, center;
 	private SpriteSheet sprite;
+    private int fade;
 	private double x, y, xSize, ySize, padding;
 	private Vibrator vibrator;
 	
@@ -19,6 +20,7 @@ public class Button {
 		this.x=x;
 		this.y=y;
 		this.center=center;
+        fade = 255;
 		sprite = new SpriteSheet(newSprite.getBitmap(), 
 				newSprite.getHFrames(), newSprite.getVFrames(), newSprite.getRate());
 		xSize = sprite.getBitWidth();
@@ -30,12 +32,9 @@ public class Button {
 	}
 	public void draw(Canvas canvas){
 		Paint paint = new Paint();
+        paint.setARGB(fade, 255, 255, 255);
 		if (!hide) canvas.drawBitmap(sprite.getBitmap(), sprite.getSpriteRect(), sprite.getDestRect(), paint);
-	}
-	public void draw(int fade, Canvas canvas){	
-		Paint paint = new Paint();
-		paint.setARGB(fade, 255, 255, 255);
-		if (!hide) canvas.drawBitmap(sprite.getBitmap(), sprite.getSpriteRect(), sprite.getDestRect(), paint);
+        paint.setARGB(255, 255, 255, 255);
 	}
 	public void resize(int newWidth, int newHeight){
 		xSize=newWidth;
@@ -50,7 +49,7 @@ public class Button {
 		sprite.update(x, y);
 	}
 	public boolean down(int x1, int y1){
-		if (!hide){
+		if (!hide && fade >= 255){
 			if (center){
 				if (Math.abs(x1-x) < ((xSize/2)+padding) && Math.abs(y1-y) < ((ySize/2)+padding)){
 					if (!pressed) vibrator.vibrate(25);
@@ -70,10 +69,10 @@ public class Button {
 	}
 	public boolean move(int x1, int y1){
 		if (!hide) down(x1, y1);
-		return false;
+		return pressed;
 	}
 	public boolean up(int x1, int y1){ 
-		if (pressed && !hide){
+		if (pressed && !hide && fade >= 255){
 			sprite.animate(0, 0);
 			pressed = false;
 			return true;
@@ -81,6 +80,7 @@ public class Button {
 		else return false; 
 	}
 	public void setPadding(int padding){ this.padding=padding; }
+    public void setFade(int fade){ this.fade=fade; }
 	public void hide(){ hide = true; }
 	public void reveal(){ hide = false; }
 	public void update(double x, double y){ 

@@ -1,6 +1,7 @@
 package game;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.Log;
 
 public class Environment {
 	private int mainX, mainY;
@@ -20,11 +21,11 @@ public class Environment {
 	private Mountains layer3;
 	private Earth layer4;
 	private Clouds clouds;
-	private Factories factories;
-	private Mines mines;
-	private Trees trees;
-	private Rocks rocks;
-    private Player player;
+	public Factories factories;
+	public Mines mines;
+	public Trees trees;
+	public Rocks rocks;
+    public Player player;
 	
 	public Environment(){
 		mainX = (GamePanel.getWidth()/2)-((tileCount*tileSize)/2);
@@ -46,7 +47,7 @@ public class Environment {
 		clouds = new Clouds();
         player = new Player(layer4.getWidth() / 2, 0);
 		//test
-		factories.add(layer4.getWidth() / 2); //add factory_wood to the center of the map
+		//factories.add(layer4.getWidth() / 2); //add factory_wood to the center of the map
 		for (int i = 0; i < 24; i++)
 		trees.add((int)(Math.random()*layer4.getWidth()), 0);
 		for (int i = 0; i < 8; i++) 
@@ -86,27 +87,31 @@ public class Environment {
         player.update(mod,  (mainX-(downX-dragX))*rate4, mainY);
 	}
 	public void down(int x1, int y1){
-		downX = dragX = x1;
-		factories.down(x1, y1);
-		mines.down(x1, y1);
-		trees.down(x1, y1);
-		rocks.down(x1, y1);
+        if (!Game.gui.isPressed()){
+            downX = dragX = x1;
+            factories.down(x1, y1);
+            mines.down(x1, y1);
+            trees.down(x1, y1);
+            rocks.down(x1, y1);
+        }
 	}
 	public void move(int x1, int y1){
 		//check drag
-		dragX = x1;
-		if (mainX-(downX-dragX) > 0){ mainX = 0; downX = x1;}
-		else if (mainX-(downX-dragX) < -(layer4.getWidth() - GamePanel.getWidth())) {
-			mainX = -(layer4.getWidth() - GamePanel.getWidth());
-			downX = x1;
-		}
-		factories.move(x1, y1, Math.abs(downX - dragX));
-		mines.move(x1, y1, Math.abs(downX-dragX));
-		trees.move(x1, y1, Math.abs(downX-dragX));
-		rocks.move(x1, y1, Math.abs(downX-dragX));
+        //Log.d("hey", "" + Game.gui.move(x1, y1));
+        if (!Game.gui.isPressed()){
+            dragX = x1;
+            if (mainX-(downX-dragX) > 0){ mainX = 0; downX = x1;}
+            else if (mainX-(downX-dragX) < -(layer4.getWidth() - GamePanel.getWidth())) {
+                mainX = -(layer4.getWidth() - GamePanel.getWidth());
+                downX = x1;
+            }
+            factories.move(x1, y1, Math.abs(downX - dragX));
+            mines.move(x1, y1, Math.abs(downX-dragX));
+            trees.move(x1, y1, Math.abs(downX-dragX));
+            rocks.move(x1, y1, Math.abs(downX-dragX));
+        }
 	}
 	public void up(int x1, int y1){
-		//check factories
 		//release drag
 		mainX -= (downX-dragX);
 		mainY -= (downY-dragY);
@@ -116,7 +121,11 @@ public class Environment {
 		else if (mines.up(x1, y1, Math.abs(downX-dragX))){  }
 		else if (trees.up(x1, y1, Math.abs(downX-dragX))){  }
 		else if (rocks.up(x1, y1, Math.abs(downX-dragX))){  }
-        else player.setTarget(-mainX + x1,y1,(downX-dragX)); //move player
+        else{
+            if (!Game.gui.isPressed())
+            player.setTarget(-mainX + x1,y1,(downX-dragX)); //move player
+            Game.gui.setPressed(false);
+        }
 		downX = downY = dragX = dragY = 0;
 	}
 	public void deselectAll(){

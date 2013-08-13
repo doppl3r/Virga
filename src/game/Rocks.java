@@ -28,16 +28,20 @@ public class Rocks {
 		
 	}
 	public void move(int x1, int y1, int difference){
-		if (difference > 32 && select == true){
-			select = false;
-			deselectAll();
-		}
+        if (difference > 32 && select == true){
+            if (select){
+                deselectAll();
+                Game.gui.resetGUI();
+                select = false;
+            }
+        }
 	}
 	public boolean up(int x1, int y1, int difference){
 		boolean up = false;
 		if (difference <= 32){
 			for (int i = rocks.size()-1; i >= 0; i--){
 				if (rocks.get(i).select(x1, y1) && !rocks.get(i).showBorder){
+                    Game.gui.setGUI(false,false,false,true,false,true);
 					up = true;
 					deselectAll();
 					select = true;
@@ -62,7 +66,6 @@ public class Rocks {
 		private int type = 0; //0-3
 		private int rockX;
 		private int rockY;
-		private int minerals;
 		
 		public Rock(int x, int y){
 			type = (int)(Math.random()*4);
@@ -90,12 +93,10 @@ public class Rocks {
 		public int getX(){ return rockX; }
 		public int getY(){ return rockY; }
 		public int getType(){ return type; }
-		public int getMinerals(){ return minerals; }
 		public void setX(int x){ this.rockX = x; }
 		public void setY(int y){ this.rockY = y; }
 		public void setType(int type){ this.type = type; }
 		public void showBorder(boolean show){ showBorder = show; if (show) border.resetDest(); }
-		public void setMinerals(int minerals){ this.minerals=minerals; }
 		public boolean select(int x, int y){
 			boolean select = false;
 			if (x >= sprite.getDestRect().left && x < sprite.getDestRect().right &&

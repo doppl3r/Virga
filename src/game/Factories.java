@@ -28,10 +28,12 @@ public class Factories {
     }
     public void move(int x1, int y1, int difference){
         if (difference > 32 && select == true){
-            select = false;
-            deselectAll();
+            if (select){
+                deselectAll();
+                Game.gui.resetGUI();
+                select = false;
+            }
         }
-
     }
     public boolean up(int x1, int y1, int difference){
         boolean up = false;
