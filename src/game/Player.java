@@ -7,9 +7,9 @@ import textures.SpriteSheet;
 
 public class Player {
 
-    private int wood = 50;
-    private int rocks = 50;
-    private int metal = 50;
+    private int wood;
+    private int rocks;
+    private int metal;
     private int color;
     private int targetX;
     private int radius;
@@ -84,6 +84,9 @@ public class Player {
         }
     }
     public void setObjectX(int objectX){ this.objectX=objectX; }
+    public void addWood(int i){ wood += i; }
+    public void addRocks(int i){ rocks += i; }
+    public void addMetal(int i){ metal += i; }
     public int getObjectX(){ return objectX; }
     public int getWood(){ return wood; }
     public int getRocks(){ return rocks; }

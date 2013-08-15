@@ -8,6 +8,8 @@ import android.graphics.Paint;
 import textures.BitmapText;
 import textures.SpriteSheet;
 
+import java.util.LinkedList;
+
 public class GUI {
 
     private boolean pressed;
@@ -15,6 +17,7 @@ public class GUI {
     private Button farm, upgrade, exit; //selector buttons
     private SpriteSheet woodIcon, rockIcon, metalIcon;
     private BitmapText woodCount, rockCount, metalCount;
+    private LinkedList<BitmapText> splashText;
 
 	public GUI(Context context){
 		int ratio = 4;
@@ -26,6 +29,7 @@ public class GUI {
         rockCount = new BitmapText();
         metalIcon = new SpriteSheet(GamePanel.textures.metal, 1, 1, 0.0);
         metalCount = new BitmapText();
+        splashText = new LinkedList<BitmapText>();
         //place icons
         woodIcon.build(16, 96, 32, 32);
         rockIcon.build(16, 144, 32, 32);
@@ -57,11 +61,11 @@ public class GUI {
 	public void draw(Canvas canvas, Paint paint){
 		//draw gui's
         woodIcon.draw(canvas,paint);
-        woodCount.draw("x"+Game.land.player.getWood(), 56,104, canvas);
+        woodCount.draw("x"+Game.land.player.getWood(), 56,104, canvas, paint);
         rockIcon.draw(canvas,paint);
-        rockCount.draw("x"+Game.land.player.getWood(), 56,152, canvas);
+        rockCount.draw("x"+Game.land.player.getRocks(), 56,152, canvas, paint);
         metalIcon.draw(canvas,paint);
-        metalCount.draw("x"+Game.land.player.getWood(), 56,200, canvas);
+        metalCount.draw("x"+Game.land.player.getMetal(), 56,200, canvas, paint);
 
         //draw buttons
         newTree.draw(canvas);
@@ -70,9 +74,25 @@ public class GUI {
         farm.draw(canvas);
         upgrade.draw(canvas);
         exit.draw(canvas);
+
+        //draw splash
+        for (int i = 0; i < splashText.size(); i++){
+            splashText.get(i).draw(canvas, paint);
+        }
 	}
 	public void update(double mod){
-		
+        //update splash texts
+	    for (int i = 0; i < splashText.size(); i++){
+            splashText.get(i).fadeUp(50*mod);
+            if (splashText.get(i).getFade() <= 0) splashText.remove(i);
+        }
+        //update buttons
+        newTree.update(mod, newTree.getX(), newTree.getY());
+        newMine.update(mod, newMine.getX(), newMine.getY());
+        newFactory.update(mod, newFactory.getX(), newFactory.getY());
+        farm.update(mod, farm.getX(), farm.getY());
+        upgrade.update(mod, upgrade.getX(), upgrade.getY());
+        exit.update(mod, exit.getX(), exit.getY());
 	}
 	public void down(int x1, int y1){
         if (newTree.down(x1, y1)) pressed = true;
@@ -109,11 +129,17 @@ public class GUI {
 
         }
         else if (exit.up(x1,y1)){
-
+            Game.land.player.setTarget(-1,0,0); //stop player in motion
+            Game.land.deselectAll(-1);
+            Game.land.unMarkAll(-1);
+            resetGUI();
         }
     }
     public boolean isPressed(){ return pressed; }
-    public void setPressed(boolean s){ pressed=s; }
+    public void addSplashText(String st, int x, int y){
+        splashText.add(new BitmapText(st, x, y));
+    }
+    public void setPressed(boolean pressed){ this.pressed=pressed; }
     public void setGUI(boolean f1, boolean f2, boolean f3, boolean f4, boolean f5, boolean f6){
         if (f1) newTree.setFade(255); else newTree.setFade(75);
         if (f2) newMine.setFade(255); else newMine.setFade(75);
@@ -127,11 +153,14 @@ public class GUI {
         boolean addMine=false;
         boolean addFact=false;
         //show tree button
-        if (Game.land.player.getWood() >= 1) addTree=true;
+        if (Game.land.player.getWood() >= Game.land.trees.getWoodCost()) addTree=true;
         //show mine button
-        if (Game.land.player.getWood() >= 5 && Game.land.player.getRocks() >= 1) addMine=true;
+        if (Game.land.player.getWood() >= Game.land.mines.getWoodCost() &&
+            Game.land.player.getRocks() >= Game.land.mines.getRockCost()) addMine=true;
         //show factory
-        if (Game.land.player.getWood()>= 20 && Game.land.player.getRocks() >= 20) addFact=true;
+        if (Game.land.player.getWood()>= Game.land.factories.getWoodCost() &&
+            Game.land.player.getRocks() >= Game.land.factories.getRockCost()) addFact=true;
+
         //compile settings
         setGUI(addTree,addMine,addFact,false,false,false);
     }

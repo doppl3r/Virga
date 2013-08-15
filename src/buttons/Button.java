@@ -1,5 +1,6 @@
 package buttons;
 
+import android.util.Log;
 import textures.SpriteSheet;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,7 +12,7 @@ public class Button {
 	private boolean pressed, hide, center;
 	private SpriteSheet sprite;
     private int fade;
-	private double x, y, xSize, ySize, padding;
+	private double x, y, xSize, ySize, padding, moveY;
 	private Vibrator vibrator;
 	
 	public Button(Bitmap newBitmap, int x, int y, boolean center, Context context){
@@ -49,26 +50,31 @@ public class Button {
 		sprite.update(x, y);
 	}
 	public boolean down(int x1, int y1){
-		if (!hide && fade >= 255){
+        //Log.d("hey", "" + fade);
+		if (!hide){
 			if (center){
 				if (Math.abs(x1-x) < ((xSize/2)+padding) && Math.abs(y1-y) < ((ySize/2)+padding)){
-					if (!pressed) vibrator.vibrate(25);
-					pressed = true;
-					sprite.animate(1, 0);
+                    if (fade >= 255){
+                        if (!pressed) vibrator.vibrate(25);
+                        sprite.animate(1, 0);
+                    }
+                    pressed = true;
 				} else { pressed = false; sprite.animate(0, 0); }
 			}
 			else{
 				if (Math.abs(x1-x-(xSize/2)) < ((xSize/2)+padding) && Math.abs(y1-y-(ySize/2)) < ((ySize/2)+padding)){
-					if (!pressed) vibrator.vibrate(25);
-					pressed = true;
-					sprite.animate(1, 0);
+                    if (fade >= 255){
+                        if (!pressed) vibrator.vibrate(25);
+                        sprite.animate(1, 0);
+                    }
+                    pressed = true;
 				} else { pressed = false; sprite.animate(0, 0); }
 			}
 		}
 		return pressed;
 	}
 	public boolean move(int x1, int y1){
-		if (!hide) down(x1, y1);
+		down(x1, y1);
 		return pressed;
 	}
 	public boolean up(int x1, int y1){ 
@@ -83,6 +89,19 @@ public class Button {
     public void setFade(int fade){ this.fade=fade; }
 	public void hide(){ hide = true; }
 	public void reveal(){ hide = false; }
+    public void update(double mod, double x, double y){
+        //this is unique to drop-down buttons
+        if (fade < 255){
+            if (moveY < 64)  moveY += (mod*500);
+            else moveY = 64;
+            sprite.animate(0, 0);
+        }
+        else {
+            if (moveY > 0) moveY -= (mod*500);
+            else moveY = 0;
+        }
+        sprite.update(x, y-moveY);
+    }
 	public void update(double x, double y){ 
 		this.x=x;
 		this.y=y;

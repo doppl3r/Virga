@@ -6,10 +6,12 @@ import android.graphics.Paint;
 
 public class Mines {
 	private LinkedList<Mine> mines;
-	private boolean select;
+    private int selected, woodCost, rockCost;
 	
 	public Mines() {
 		mines = new LinkedList<Mine>();
+        woodCost = 15;
+        rockCost = 5;
 	}
 	public void draw(Canvas canvas, Paint paint){
 		for (int i = 0; i < mines.size(); i++){
@@ -23,38 +25,63 @@ public class Mines {
 	}
 	public void add(int x1){ mines.add(new Mine(x1)); }
 	public void remove(int i){ mines.remove(i); }
-	public void down(int x1, int y1){
-		
-	}
-	public void move(int x1, int y1, int difference){
-        if (difference > 32 && select == true){
-            if (select){
-                deselectAll();
-                Game.gui.resetGUI();
-                select = false;
-            }
-        }
-	}
+	public void down(int x1, int y1){ }
+	public void move(int x1, int y1, int difference){ }
 	public boolean up(int x1, int y1, int difference){
 		boolean up = false;
-		if (difference <= 32){
-			for (int i = mines.size()-1; i >= 0; i--){
-				if (mines.get(i).select(x1, y1) && !mines.get(i).showBorder){
-                    Game.gui.setGUI(false,false,false,true,false,true);
-					up = true;
-					deselectAll();
-					select = true;
-					mines.get(i).showBorder(true);
-					break;
-				}
-			}
-		}
+        if (difference <= 32){
+            for (int i = mines.size()-1; i >= 0; i--){
+                if (selected > -1) mines.get(selected).showBorder(false);
+                //set border properties
+                if (mines.get(i).select(x1, y1) && !mines.get(i).showBorder){
+                    Game.gui.setGUI(false,
+                            false,
+                            false,
+                            mines.get(i).getRockQuantity()>0, //farm rocks from mine
+                            false,
+                            true);
+                    up = true;
+                    selected = i;
+                    mines.get(selected).showBorder(true);
+                    break;
+                }
+                else{
+                    Game.gui.resetGUI();
+                    unMarkAll();
+                    selected = -1;
+                }
+            }
+        }
 		return up;
 	}
 	public void deselectAll(){
-		for (int j = 0;j<mines.size();j++) 
-		mines.get(j).showBorder(false); 
+		for (int j = 0;j<mines.size();j++) mines.get(j).showBorder(false);
+        selected = -1;
 	}
+    public void unMarkAll(){
+        for (int j = 0;j<mines.size();j++) mines.get(j).setMark(false);
+        selected = -1;
+    }
+    public void markSelected(boolean marked){
+        if (selected > -1) mines.get(selected).setMark(marked);
+    }
+    public void farmMarked(){
+        if (selected > -1){
+            if (mines.get(selected).isMarked()){
+                Game.land.player.addWood(mines.get(selected).getRockQuantity());
+                Game.gui.addSplashText("+"+(mines.get(selected).getRockQuantity()),
+                        Game.land.player.getObjectX()+GamePanel.game.getMainX()-16,
+                        GamePanel.getHeight()-48);
+                mines.get(selected).setRockQuantity(0);
+                //mines.remove(selected);
+                Game.gui.resetGUI();
+                selected = -1;
+            }
+        }
+    }
+    public int getSelectedIndex(){ return selected; }
+    public int getWoodCost(){ return woodCost; }
+    public int getRockCost(){ return rockCost; }
 	/*
 	 * Factory class
 	 */
@@ -62,13 +89,14 @@ public class Mines {
 		private SpriteSheet sprite;
 		private SpriteSheet border;
 		private boolean showBorder;
+        private boolean marked;
 		private double maxAnimationTime = 10;
 		private double animationTime = maxAnimationTime;
 		private int type = 3; //0-3
 		private double rate = (type+1)*100;
 		private int mineX;
 		private int mineY;
-		private int minerals;
+		private int rocks;
 		private int width;
 		private int height;
 		
@@ -102,20 +130,18 @@ public class Mines {
 			sprite.update(mainX+mineX, mainY+mineY);
 			if (showBorder) border.update(mainX+mineX-4, mainY+mineY-4);
 		}
+        public int getRockQuantity(){ return rocks; }
 		public int getX(){ return mineX; }
 		public int getY(){ return mineY; }
 		public int getType(){ return type; }
-		public int getMinerals(){ return minerals; }
 		public double getRate(){ return rate; }
 		public void setX(int x){ this.mineX = x; }
 		public void setY(int y){ this.mineY = y; }
 		public void setType(int type){ this.type = type; }
-		public void showBorder(boolean show){ 
-			showBorder = show; if (show){ 
-				border.resetDest(); 
-			}
-		}
-		public void setMinerals(int minerals){ this.minerals = minerals; }
+		public void showBorder(boolean show){ showBorder = show; if (show) border.resetDest(); }
+        public void setMark(boolean marked){ this.marked=marked; }
+        public void setRockQuantity(int q){ rocks = q; }
+        public boolean isMarked(){ return marked; }
 		public boolean select(int x, int y){
 			boolean select = false;
 			if (x >= sprite.getDestRect().left && x < sprite.getDestRect().right &&

@@ -1,16 +1,18 @@
 package game;
 
 import java.util.LinkedList;
+
 import textures.SpriteSheet;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
 public class Rocks {
 	private LinkedList<Rock> rocks;
-	private int selected;
+	private int selected, rockCost;
 	
 	public Rocks(){
 		rocks = new LinkedList<Rock>();
+        rockCost = 0; //wut
 	}
 	public void draw(Canvas canvas, Paint paint){
 		for (int i = 0; i < rocks.size(); i++){
@@ -48,17 +50,13 @@ public class Rocks {
 		}
 		return up;
 	}
-    public int getMarkedRockX(){
-        int x;
-        if (selected > -1) x = rocks.get(selected).getX()+(rocks.get(selected).sprite.getBitWidth()/2);
-        else x = Game.land.player.getX();
-        return x;
-    }
 	public void deselectAll(){
         for (int j = 0;j<rocks.size();j++) rocks.get(j).showBorder(false);
+        selected = -1;
 	}
     public void unMarkAll(){
         for (int j = 0;j<rocks.size();j++) rocks.get(j).setMark(false);
+        selected = -1;
     }
     public void markSelected(boolean marked){
         if (selected > -1) rocks.get(selected).setMark(marked);
@@ -66,6 +64,10 @@ public class Rocks {
     public void farmMarked(){
         if (selected > -1){
             if (rocks.get(selected).isMarked()){
+                Game.land.player.addRocks(rocks.get(selected).getRockQuantity());
+                Game.gui.addSplashText("+"+(rocks.get(selected).getRockQuantity()),
+                        Game.land.player.getObjectX()+GamePanel.game.getMainX()-16,
+                        GamePanel.getHeight()-48);
                 rocks.remove(selected);
                 Game.gui.resetGUI();
                 selected = -1;
@@ -73,6 +75,7 @@ public class Rocks {
         }
     }
     public int getSelectedIndex(){ return selected; }
+    public int getRockCost(){ return rockCost; }
 	/*
 	 * Tree class
 	 */
@@ -81,12 +84,14 @@ public class Rocks {
 		private SpriteSheet border;
 		private boolean showBorder;
         private boolean marked;
+        private int rocks;
 		private int type = 0; //0-3
 		private int rockX;
 		private int rockY;
 		
 		public Rock(int x, int y){
 			type = (int)(Math.random()*4);
+            rocks = type+1;
 			sprite = new SpriteSheet(GamePanel.textures.rocks, 4, 1, 0.0);
 			int width = sprite.getBitWidth();
 			int height = sprite.getBitHeight();
@@ -108,6 +113,7 @@ public class Rocks {
 			sprite.update(mainX+rockX, mainY+rockY);
 			if (showBorder) border.update(mainX+rockX-4, mainY+rockY-4);
 		}
+        public int getRockQuantity(){ return rocks; }
 		public int getX(){ return rockX; }
 		public int getY(){ return rockY; }
 		public int getType(){ return type; }

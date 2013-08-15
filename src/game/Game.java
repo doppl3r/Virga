@@ -53,4 +53,5 @@ public class Game {
 	}
 	public float getTime(){ return time; }
 	public int getMainX(){ return land.getMainX(); }
+    public int getDragDifference(){ return land.getDragDifference(); }
 }

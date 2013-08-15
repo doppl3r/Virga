@@ -6,10 +6,12 @@ import android.graphics.Paint;
 
 public class Factories {
     private LinkedList<Factory> factories;
-    private boolean select;
+    private int selected, woodCost, rockCost;
 
     public Factories() {
         factories = new LinkedList<Factory>();
+        woodCost = 50;
+        rockCost = 25;
     }
     public void draw(Canvas canvas, Paint paint){
         for (int i = 0; i < factories.size(); i++){
@@ -23,37 +25,63 @@ public class Factories {
     }
     public void add(int x1){ factories.add(new Factory(x1)); }
     public void remove(int i){ factories.remove(i); }
-    public void down(int x1, int y1){
-
-    }
-    public void move(int x1, int y1, int difference){
-        if (difference > 32 && select == true){
-            if (select){
-                deselectAll();
-                Game.gui.resetGUI();
-                select = false;
-            }
-        }
-    }
+    public void down(int x1, int y1){ }
+    public void move(int x1, int y1, int difference){ }
     public boolean up(int x1, int y1, int difference){
         boolean up = false;
         if (difference <= 32){
             for (int i = factories.size()-1; i >= 0; i--){
+                if (selected > -1) factories.get(selected).showBorder(false);
+                //set border properties
                 if (factories.get(i).select(x1, y1) && !factories.get(i).showBorder){
+                    Game.gui.setGUI(false,
+                            false,
+                            false,
+                            factories.get(i).getMetalQuantity()>0, //farm metal from factory
+                            false,
+                            true);
                     up = true;
-                    deselectAll();
-                    select = true;
-                    factories.get(i).showBorder(true);
+                    selected = i;
+                    factories.get(selected).showBorder(true);
                     break;
+                }
+                else{
+                    Game.gui.resetGUI();
+                    unMarkAll();
+                    selected = -1;
                 }
             }
         }
         return up;
     }
     public void deselectAll(){
-        for (int j = 0;j< factories.size();j++)
-            factories.get(j).showBorder(false);
+        for (int j = 0;j< factories.size();j++) factories.get(j).showBorder(false);
+        selected = -1;
     }
+    public void unMarkAll(){
+        for (int j = 0;j<factories.size();j++) factories.get(j).setMark(false);
+        selected = -1;
+    }
+    public void markSelected(boolean marked){
+        if (selected > -1) factories.get(selected).setMark(marked);
+    }
+    public void farmMarked(){
+        if (selected > -1){
+            if (factories.get(selected).isMarked()){
+                Game.land.player.addWood(factories.get(selected).getMetalQuantity());
+                Game.gui.addSplashText("+"+(factories.get(selected).getMetalQuantity()),
+                        Game.land.player.getObjectX()+GamePanel.game.getMainX()-16,
+                        GamePanel.getHeight()-48);
+                factories.get(selected).setMetalQuantity(0);
+                //mines.remove(selected);
+                Game.gui.resetGUI();
+                selected = -1;
+            }
+        }
+    }
+    public int getSelectedIndex(){ return selected; }
+    public int getWoodCost(){ return woodCost; }
+    public int getRockCost(){ return rockCost; }
     /*
      * Factory class
      */
@@ -61,6 +89,7 @@ public class Factories {
         private SpriteSheet sprite;
         private SpriteSheet border;
         private boolean showBorder;
+        private boolean marked;
         private double maxAnimationTime = 10;
         private double animationTime = maxAnimationTime;
         private int type = 3; //0-3
@@ -101,20 +130,18 @@ public class Factories {
             sprite.update(mainX+ factoryX, mainY+ factoryY);
             if (showBorder) border.update(mainX+ factoryX -4, mainY+ factoryY -4);
         }
+        public int getMetalQuantity(){ return metals; }
         public int getX(){ return factoryX; }
         public int getY(){ return factoryY; }
         public int getType(){ return type; }
-        public int getMetals(){ return metals; }
         public double getRate(){ return rate; }
         public void setX(int x){ this.factoryX = x; }
         public void setY(int y){ this.factoryY = y; }
         public void setType(int type){ this.type = type; }
-        public void showBorder(boolean show){
-            showBorder = show; if (show){
-                border.resetDest();
-            }
-        }
-        public void setMetals(int metals){ this.metals = metals; }
+        public void showBorder(boolean show){ showBorder = show; if (show) border.resetDest(); }
+        public void setMark(boolean marked){ this.marked=marked; }
+        public void setMetalQuantity(int q){ metals=q; }
+        public boolean isMarked(){ return marked; }
         public boolean select(int x, int y){
             boolean select = false;
             if (x >= sprite.getDestRect().left && x < sprite.getDestRect().right &&

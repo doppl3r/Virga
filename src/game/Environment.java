@@ -117,24 +117,56 @@ public class Environment {
 		mainY -= (downY-dragY);
 		//deselectAll();
 		objectiveX = -mainX + x1;
+        //Log.d("hey","pressed: "+Game.gui.isPressed());
         if (!Game.gui.isPressed()){
-            if (factories.up(x1, y1, Math.abs(downX-dragX))){  player.setObjectX(objectiveX); }
-            else if (mines.up(x1, y1, Math.abs(downX-dragX))){ player.setObjectX(objectiveX); }
-            else if (trees.up(x1, y1, Math.abs(downX-dragX))){ player.setObjectX(objectiveX); }
-            else if (rocks.up(x1, y1, Math.abs(downX-dragX))){ player.setObjectX(objectiveX); }
+            if (trees.up(x1, y1, Math.abs(downX-dragX))){
+                player.setObjectX(objectiveX);
+                deselectAll(0);
+                unMarkAll(0);
+            }
+            else if (rocks.up(x1, y1, Math.abs(downX-dragX))){
+                player.setObjectX(objectiveX);
+                deselectAll(1);
+                unMarkAll(1);
+            }
+            else if (mines.up(x1, y1, Math.abs(downX-dragX))){
+                player.setObjectX(objectiveX);
+                deselectAll(2);
+                unMarkAll(2);
+            }
+            else if (factories.up(x1, y1, Math.abs(downX-dragX))){
+                player.setObjectX(objectiveX);
+                deselectAll(3);
+                unMarkAll(3);
+            }
             else{
                 player.setTarget(objectiveX,y1,(downX-dragX)); //move player
+                //deselectAll(-1);
+                //unMarkAll(-1);
             }
         }
-        else Game.gui.setPressed(false);
+        else {
+            Game.gui.setPressed(false);
+            //Log.d("hey","pressed: "+Game.gui.isPressed());
+        }
+
 		downX = downY = dragX = dragY = 0;
 	}
-	public void deselectAll(){
-		trees.deselectAll();
-		rocks.deselectAll();
-		factories.deselectAll();
-		mines.deselectAll();
+	public void deselectAll(int i){
+        //to deselect all, use '-1'
+        if (i != 0) trees.deselectAll();
+		if (i != 1) rocks.deselectAll();
+        if (i != 2) mines.deselectAll();
+		if (i != 3) factories.deselectAll();
 	}
+    public void unMarkAll(int i){
+        //to un-mark all, use '-1'
+        if (i != 0) trees.unMarkAll();
+        if (i != 1) rocks.unMarkAll();
+        if (i != 2) mines.unMarkAll();
+        if (i != 3) factories.unMarkAll();
+        //do this for other s!
+    }
 	public void addMountains(){
 		int spacing = 0;
 		int maxSpacing = 360;
@@ -173,5 +205,6 @@ public class Environment {
 	}
 	public int getMainX(){ return mainX; }
 	public int getMainY(){ return mainY; }
+    public int getDragDifference(){ return (downX - dragX); }
 	public int getObjectiveX(){ return objectiveX; }
 }

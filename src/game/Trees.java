@@ -7,10 +7,11 @@ import android.graphics.Paint;
 
 public class Trees {
     private LinkedList<Tree> trees;
-    private int selected;
+    private int selected, woodCost;
 
     public Trees(){
         trees = new LinkedList<Tree>();
+        woodCost = 1;
     }
     public void draw(Canvas canvas, Paint paint){
         for (int i = 0; i < trees.size(); i++){
@@ -48,17 +49,13 @@ public class Trees {
         }
         return up;
     }
-    public int getMarkedTreeX(){
-        int x;
-        if (selected > -1) x = trees.get(selected).getX()+(trees.get(selected).sprite.getBitWidth()/2);
-        else x = Game.land.player.getX();
-        return x;
-    }
     public void deselectAll(){
         for (int j = 0;j<trees.size();j++) trees.get(j).showBorder(false);
+        selected = -1;
     }
     public void unMarkAll(){
         for (int j = 0;j<trees.size();j++) trees.get(j).setMark(false);
+        selected = -1;
     }
     public void markSelected(boolean marked){
         if (selected > -1) trees.get(selected).setMark(marked);
@@ -66,6 +63,10 @@ public class Trees {
     public void farmMarked(){
         if (selected > -1){
             if (trees.get(selected).isMarked()){
+                Game.land.player.addWood(trees.get(selected).getWoodQuantity());
+                Game.gui.addSplashText("+"+(trees.get(selected).getWoodQuantity()),
+                    Game.land.player.getObjectX()+GamePanel.game.getMainX()-16,
+                    GamePanel.getHeight()-48);
                 trees.remove(selected);
                 Game.gui.resetGUI();
                 selected = -1;
@@ -73,6 +74,7 @@ public class Trees {
         }
     }
     public int getSelectedIndex(){ return selected; }
+    public int getWoodCost(){ return woodCost; }
     /*
      * Tree class
      */
@@ -86,9 +88,11 @@ public class Trees {
         private int type = 0; //0-3
         private int treeX;
         private int treeY;
+        private int wood;
 
         public Tree(int x, int y){
             type = (int)(Math.random()*4);
+            wood = type+1; //set wood to stage of life
             sprite = new SpriteSheet(GamePanel.textures.trees, 6, 1, 0.0);
             shadow = new SpriteSheet(GamePanel.textures.trees, 6, 1, 0.0);
             int width = sprite.getBitWidth();
@@ -115,6 +119,7 @@ public class Trees {
             shadow.update(mainX+treeX, mainY+treeY+shadow.getSpriteHeight()*4);
             if (showBorder) border.update(mainX+treeX-4, mainY+treeY-4);
         }
+        public int getWoodQuantity(){ return wood; }
         public int getX(){ return treeX; }
         public int getY(){ return treeY; }
         public int getType(){ return type; }
@@ -127,7 +132,7 @@ public class Trees {
         public boolean select(int x, int y){
             boolean select = false;
             if (x >= sprite.getDestRect().left && x < sprite.getDestRect().right &&
-                    y >= sprite.getDestRect().top && y < sprite.getDestRect().bottom){
+                y >= sprite.getDestRect().top && y < sprite.getDestRect().bottom){
                 select = true;
             }
             return select;
