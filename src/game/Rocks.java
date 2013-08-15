@@ -7,7 +7,7 @@ import android.graphics.Paint;
 
 public class Rocks {
 	private LinkedList<Rock> rocks;
-	private boolean select;
+	private int selected;
 	
 	public Rocks(){
 		rocks = new LinkedList<Rock>();
@@ -24,38 +24,55 @@ public class Rocks {
 	}
 	public void add(int x1, int y1){ rocks.add(new Rock(x1, y1)); }
 	public void remove(int i){ rocks.remove(i); }
-	public void down(int x1, int y1){
-		
-	}
-	public void move(int x1, int y1, int difference){
-        if (difference > 32 && select == true){
-            if (select){
-                deselectAll();
-                Game.gui.resetGUI();
-                select = false;
-            }
-        }
-	}
+	public void down(int x1, int y1){ }
+	public void move(int x1, int y1, int difference){ }
 	public boolean up(int x1, int y1, int difference){
 		boolean up = false;
 		if (difference <= 32){
-			for (int i = rocks.size()-1; i >= 0; i--){
-				if (rocks.get(i).select(x1, y1) && !rocks.get(i).showBorder){
+            for (int i = rocks.size()-1; i >= 0; i--){
+                if (selected > -1) rocks.get(selected).showBorder(false);
+                //set border properties
+                if (rocks.get(i).select(x1, y1) && !rocks.get(i).showBorder){
                     Game.gui.setGUI(false,false,false,true,false,true);
-					up = true;
-					deselectAll();
-					select = true;
-					rocks.get(i).showBorder(true);
-					break;
-				}
-			}
+                    up = true;
+                    selected = i;
+                    rocks.get(selected).showBorder(true);
+                    break;
+                }
+                else{
+                    Game.gui.resetGUI();
+                    unMarkAll();
+                    selected = -1;
+                }
+            }
 		}
 		return up;
 	}
+    public int getMarkedRockX(){
+        int x;
+        if (selected > -1) x = rocks.get(selected).getX()+(rocks.get(selected).sprite.getBitWidth()/2);
+        else x = Game.land.player.getX();
+        return x;
+    }
 	public void deselectAll(){
-		for (int j = 0;j<rocks.size();j++) 
-		rocks.get(j).showBorder(false); 
+        for (int j = 0;j<rocks.size();j++) rocks.get(j).showBorder(false);
 	}
+    public void unMarkAll(){
+        for (int j = 0;j<rocks.size();j++) rocks.get(j).setMark(false);
+    }
+    public void markSelected(boolean marked){
+        if (selected > -1) rocks.get(selected).setMark(marked);
+    }
+    public void farmMarked(){
+        if (selected > -1){
+            if (rocks.get(selected).isMarked()){
+                rocks.remove(selected);
+                Game.gui.resetGUI();
+                selected = -1;
+            }
+        }
+    }
+    public int getSelectedIndex(){ return selected; }
 	/*
 	 * Tree class
 	 */
@@ -63,6 +80,7 @@ public class Rocks {
 		private SpriteSheet sprite;
 		private SpriteSheet border;
 		private boolean showBorder;
+        private boolean marked;
 		private int type = 0; //0-3
 		private int rockX;
 		private int rockY;
@@ -97,6 +115,8 @@ public class Rocks {
 		public void setY(int y){ this.rockY = y; }
 		public void setType(int type){ this.type = type; }
 		public void showBorder(boolean show){ showBorder = show; if (show) border.resetDest(); }
+        public void setMark(boolean marked){ this.marked=marked; }
+        public boolean isMarked(){ return marked; }
 		public boolean select(int x, int y){
 			boolean select = false;
 			if (x >= sprite.getDestRect().left && x < sprite.getDestRect().right &&

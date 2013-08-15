@@ -115,17 +115,18 @@ public class Environment {
 		//release drag
 		mainX -= (downX-dragX);
 		mainY -= (downY-dragY);
-		deselectAll();
+		//deselectAll();
 		objectiveX = -mainX + x1;
-		if (factories.up(x1, y1, Math.abs(downX-dragX))){  }
-		else if (mines.up(x1, y1, Math.abs(downX-dragX))){  }
-		else if (trees.up(x1, y1, Math.abs(downX-dragX))){  }
-		else if (rocks.up(x1, y1, Math.abs(downX-dragX))){  }
-        else{
-            if (!Game.gui.isPressed())
-            player.setTarget(-mainX + x1,y1,(downX-dragX)); //move player
-            Game.gui.setPressed(false);
+        if (!Game.gui.isPressed()){
+            if (factories.up(x1, y1, Math.abs(downX-dragX))){  player.setObjectX(objectiveX); }
+            else if (mines.up(x1, y1, Math.abs(downX-dragX))){ player.setObjectX(objectiveX); }
+            else if (trees.up(x1, y1, Math.abs(downX-dragX))){ player.setObjectX(objectiveX); }
+            else if (rocks.up(x1, y1, Math.abs(downX-dragX))){ player.setObjectX(objectiveX); }
+            else{
+                player.setTarget(objectiveX,y1,(downX-dragX)); //move player
+            }
         }
+        else Game.gui.setPressed(false);
 		downX = downY = dragX = dragY = 0;
 	}
 	public void deselectAll(){

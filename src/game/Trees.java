@@ -7,7 +7,7 @@ import android.graphics.Paint;
 
 public class Trees {
     private LinkedList<Tree> trees;
-    private boolean select;
+    private int selected;
 
     public Trees(){
         trees = new LinkedList<Tree>();
@@ -24,38 +24,55 @@ public class Trees {
     }
     public void add(int x1, int y1){ trees.add(new Tree(x1, y1)); }
     public void remove(int i){ trees.remove(i); }
-    public void down(int x1, int y1){
-
-    }
-    public void move(int x1, int y1, int difference){
-        if (difference > 32 && select == true){
-            if (select){
-                deselectAll();
-                Game.gui.resetGUI();
-                select = false;
-            }
-        }
-    }
+    public void down(int x1, int y1){ }
+    public void move(int x1, int y1, int difference){}
     public boolean up(int x1, int y1, int difference){
         boolean up = false;
         if (difference <= 32){
             for (int i = trees.size()-1; i >= 0; i--){
+                if (selected > -1) trees.get(selected).showBorder(false);
+                //set border properties
                 if (trees.get(i).select(x1, y1) && !trees.get(i).showBorder){
                     Game.gui.setGUI(false,false,false,true,false,true);
                     up = true;
-                    deselectAll();
-                    select = true;
-                    trees.get(i).showBorder(true);
+                    selected = i;
+                    trees.get(selected).showBorder(true);
                     break;
+                }
+                else{
+                    Game.gui.resetGUI();
+                    unMarkAll();
+                    selected = -1;
                 }
             }
         }
         return up;
     }
-    public void deselectAll(){
-        for (int j = 0;j<trees.size();j++)
-            trees.get(j).showBorder(false);
+    public int getMarkedTreeX(){
+        int x;
+        if (selected > -1) x = trees.get(selected).getX()+(trees.get(selected).sprite.getBitWidth()/2);
+        else x = Game.land.player.getX();
+        return x;
     }
+    public void deselectAll(){
+        for (int j = 0;j<trees.size();j++) trees.get(j).showBorder(false);
+    }
+    public void unMarkAll(){
+        for (int j = 0;j<trees.size();j++) trees.get(j).setMark(false);
+    }
+    public void markSelected(boolean marked){
+        if (selected > -1) trees.get(selected).setMark(marked);
+    }
+    public void farmMarked(){
+        if (selected > -1){
+            if (trees.get(selected).isMarked()){
+                trees.remove(selected);
+                Game.gui.resetGUI();
+                selected = -1;
+            }
+        }
+    }
+    public int getSelectedIndex(){ return selected; }
     /*
      * Tree class
      */
@@ -64,6 +81,7 @@ public class Trees {
         private SpriteSheet border;
         private SpriteSheet shadow;
         private boolean showBorder;
+        private boolean marked;
         private double age;
         private int type = 0; //0-3
         private int treeX;
@@ -71,8 +89,8 @@ public class Trees {
 
         public Tree(int x, int y){
             type = (int)(Math.random()*4);
-            sprite = new SpriteSheet(GamePanel.textures.trees, 5, 1, 0.0);
-            shadow = new SpriteSheet(GamePanel.textures.trees, 5, 1, 0.0);
+            sprite = new SpriteSheet(GamePanel.textures.trees, 6, 1, 0.0);
+            shadow = new SpriteSheet(GamePanel.textures.trees, 6, 1, 0.0);
             int width = sprite.getBitWidth();
             int height = sprite.getBitHeight();
             //create border properties
@@ -81,7 +99,7 @@ public class Trees {
             sprite.build(x,treeY,width*4,height*4);
             sprite.animate(type);
             shadow.build(x, y, width*4, height*4);
-            shadow.animate(4);
+            shadow.animate(5);
             border = new SpriteSheet(GamePanel.textures.renderBorder(sprite.getBitmap(),
                     sprite.getSpriteLeft(),
                     sprite.getSpriteTop(), width, height), 1, 1, 0.0);
@@ -104,6 +122,8 @@ public class Trees {
         public void setY(int y){ this.treeY = y; }
         public void setType(int type){ this.type = type; }
         public void showBorder(boolean show){ showBorder = show; if (show) border.resetDest(); }
+        public void setMark(boolean marked){ this.marked=marked; }
+        public boolean isMarked(){ return marked; }
         public boolean select(int x, int y){
             boolean select = false;
             if (x >= sprite.getDestRect().left && x < sprite.getDestRect().right &&

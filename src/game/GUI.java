@@ -52,7 +52,7 @@ public class GUI {
         upgrade.update(GamePanel.getWidth()-144,0);
         exit.update(GamePanel.getWidth()-64,0);
         //fade starting buttons
-        setGUI(false,false,false,false,false,false);
+        resetGUI();
 	}
 	public void draw(Canvas canvas, Paint paint){
 		//draw gui's
@@ -75,14 +75,12 @@ public class GUI {
 		
 	}
 	public void down(int x1, int y1){
-        Log.d("hey","hey");
         if (newTree.down(x1, y1)) pressed = true;
         else if (newMine.down(x1,y1)) pressed = true;
         else if (newFactory.down(x1,y1)) pressed = true;
         else if (farm.down(x1,y1)) pressed = true;
         else if (upgrade.down(x1,y1)) pressed = true;
         else if (exit.down(x1,y1)) pressed = true;
-        //else pressed = false;
 	}
 	public void move(int x1, int y1){
         if (newTree.move(x1, y1)) pressed = true;
@@ -103,7 +101,9 @@ public class GUI {
 
         }
         else if (farm.up(x1,y1)){
-
+            Game.land.trees.markSelected(true);
+            Game.land.rocks.markSelected(true);
+            Game.land.player.setTarget(Game.land.player.getObjectX(),0,0);
         }
         else if (upgrade.up(x1,y1)){
 

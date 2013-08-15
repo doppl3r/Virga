@@ -13,6 +13,7 @@ public class Player {
     private int color;
     private int targetX;
     private int radius;
+    private int objectX;
 
     private double x;
     private double y;
@@ -50,13 +51,16 @@ public class Player {
     }
     public void update(double mod, double mainX, double mainY){
         //set direction and move
-        //Log.d("test", "x: "+x+", targetX: "+targetX);
         if (targetX > 0){
             if (Math.abs(x - targetX) > radius){
                 if (x < targetX) x+=(speed*mod);
                 else x-=(speed*mod);
             }
-            else targetX = -1;
+            else{
+                targetX = -1;
+                Game.land.trees.farmMarked();
+                Game.land.rocks.farmMarked();
+            }
         }
         //fade arrow
         if (arrowFade > 0){
@@ -79,7 +83,11 @@ public class Player {
             arrowFade = 255;
         }
     }
+    public void setObjectX(int objectX){ this.objectX=objectX; }
+    public int getObjectX(){ return objectX; }
     public int getWood(){ return wood; }
     public int getRocks(){ return rocks; }
     public int getMetal(){ return metal; }
+    public int getX(){ return (int)x; }
+    public int getY(){ return (int)y; }
 }
