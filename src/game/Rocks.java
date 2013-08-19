@@ -2,22 +2,40 @@ package game;
 
 import java.util.LinkedList;
 
+import textures.BitmapText;
 import textures.SpriteSheet;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
 public class Rocks {
 	private LinkedList<Rock> rocks;
+    private SpriteSheet rockIcon;
+    private BitmapText text;
 	private int selected, rockCost;
 	
 	public Rocks(){
+        selected = -1;
 		rocks = new LinkedList<Rock>();
+        rockIcon = new SpriteSheet(GamePanel.textures.rock, 1, 1, 0.0);
+        text = new BitmapText();
         rockCost = 0; //wut
 	}
 	public void draw(Canvas canvas, Paint paint){
 		for (int i = 0; i < rocks.size(); i++){
 			rocks.get(i).draw(canvas, paint);
 		}
+        //draw info
+        if (selected > -1){
+            for (int i = 0; i < rocks.get(selected).getRockQuantity(); i++){
+                rockIcon.resize(32, 32);
+                rockIcon.update(16 + (i * 32), 48);
+                rockIcon.draw(canvas);
+
+            }
+            text.draw("["+rocks.get(selected).getRockQuantity()+"]",
+                16+(rocks.get(selected).getRockQuantity()*32)+6,
+                56, canvas, paint);
+        }
 	}
 	public void update(double mod, double mainX, double mainY){
 		for (int i = 0; i < rocks.size(); i++){
@@ -74,6 +92,17 @@ public class Rocks {
             }
         }
     }
+    public boolean isBuildable(int x){
+        //if the space is open, it can build
+        boolean build = true;
+        for (int i = 0; i < rocks.size(); i++){
+            if (Math.abs(x-rocks.get(i).getX()) < rocks.get(i).getSpriteWidth()*4){
+                build = false;
+                break;
+            }
+        }
+        return build;
+    }
     public int getSelectedIndex(){ return selected; }
     public int getRockCost(){ return rockCost; }
 	/*
@@ -88,13 +117,15 @@ public class Rocks {
 		private int type = 0; //0-3
 		private int rockX;
 		private int rockY;
+        private int width;
+        private int height;
 		
 		public Rock(int x, int y){
 			type = (int)(Math.random()*4);
             rocks = type+1;
 			sprite = new SpriteSheet(GamePanel.textures.rocks, 4, 1, 0.0);
-			int width = sprite.getBitWidth();
-			int height = sprite.getBitHeight();
+			width = sprite.getBitWidth();
+			height = sprite.getBitHeight();
 			//create border properties
 			rockX = x;
 			rockY = GamePanel.getHeight() - height*4 - 32;
@@ -110,9 +141,10 @@ public class Rocks {
 			canvas.drawBitmap(sprite.getBitmap(), sprite.getSpriteRect(), sprite.getDestRect(), paint);
 		}
 		public void update(double mod, double mainX, double mainY){
-			sprite.update(mainX+rockX, mainY+rockY);
-			if (showBorder) border.update(mainX+rockX-4, mainY+rockY-4);
+			sprite.update(mainX+rockX-(width*2), mainY+rockY);
+			if (showBorder) border.update(mainX+rockX-4-(width*2), mainY+rockY-4);
 		}
+        public int getSpriteWidth(){ return sprite.getSpriteWidth(); }
         public int getRockQuantity(){ return rocks; }
 		public int getX(){ return rockX; }
 		public int getY(){ return rockY; }

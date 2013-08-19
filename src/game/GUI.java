@@ -83,7 +83,7 @@ public class GUI {
 	public void update(double mod){
         //update splash texts
 	    for (int i = 0; i < splashText.size(); i++){
-            splashText.get(i).fadeUp(50*mod);
+            splashText.get(i).fadeUp(25*mod);
             if (splashText.get(i).getFade() <= 0) splashText.remove(i);
         }
         //update buttons
@@ -112,21 +112,25 @@ public class GUI {
 	}
 	public void up(int x1, int y1){
         if (newTree.up(x1, y1)){
-
+            if (Game.land.isBuildable()) Game.land.player.buildTree();
         }
         else if (newMine.up(x1,y1)){
-
+            if (Game.land.isBuildable()) Game.land.player.buildMine();
         }
         else if (newFactory.up(x1,y1)){
-
+            if (Game.land.isBuildable()) Game.land.player.buildFactory();
         }
         else if (farm.up(x1,y1)){
             Game.land.trees.markSelected(true);
             Game.land.rocks.markSelected(true);
+            Game.land.mines.markSelected(true, false);
+            Game.land.mines.markSelected(true, false);
             Game.land.player.setTarget(Game.land.player.getObjectX(),0,0);
         }
         else if (upgrade.up(x1,y1)){
-
+            Game.land.mines.markSelected(true, true);
+            Game.land.mines.markSelected(true, true);
+            Game.land.player.setTarget(Game.land.player.getObjectX(),0,0);
         }
         else if (exit.up(x1,y1)){
             Game.land.player.setTarget(-1,0,0); //stop player in motion

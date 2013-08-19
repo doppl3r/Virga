@@ -49,7 +49,7 @@ public class Environment {
 		//test
 		//factories.add(layer4.getWidth() / 2); //add factory_wood to the center of the map
 		for (int i = 0; i < 24; i++)
-		trees.add((int)(Math.random()*layer4.getWidth()), 0);
+		trees.add((int)(Math.random()*layer4.getWidth()), 0, true);
 		for (int i = 0; i < 8; i++) 
 		rocks.add((int)(Math.random()*layer4.getWidth()), 0);
 		clouds.construct(layer4.getWidth());
@@ -167,6 +167,18 @@ public class Environment {
         if (i != 3) factories.unMarkAll();
         //do this for other s!
     }
+    public boolean isBuildable(){
+        //check if the spot is open to build something
+        boolean build = true;
+        if (!trees.isBuildable(player.getX()) ||
+            !rocks.isBuildable(player.getX()) ||
+            !mines.isBuildable(player.getX()) ||
+            !factories.isBuildable(player.getX())){
+            Game.gui.addSplashText("You cannot build here!", player.getX()+mainX-160, GamePanel.getHeight()-48);
+            build = false;
+        }
+        return build;
+    }
 	public void addMountains(){
 		int spacing = 0;
 		int maxSpacing = 360;
@@ -206,5 +218,6 @@ public class Environment {
 	public int getMainX(){ return mainX; }
 	public int getMainY(){ return mainY; }
     public int getDragDifference(){ return (downX - dragX); }
+    public int getRawX(){ return mainX - (downX - dragX); }
 	public int getObjectiveX(){ return objectiveX; }
 }

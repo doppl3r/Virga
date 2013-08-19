@@ -9,8 +9,8 @@ Integer Division in a Floating-point Expression (2)
 Log Exceptions (1)
 	Caught exception not logged	Use one of the logging methods to log the exception.	Medium Severity	PanelThread.java	Line 23
 Unnecessary Type Cast (5)
-	Unnecessary type cast to Integer	Delete the unnecessary cast.	Medium Severity	AudioHandler.java	Line 43
-	Unnecessary type cast to int	Delete the unnecessary cast.	Medium Severity	GamePanel.java	Line 65
-	Unnecessary type cast to int	Delete the unnecessary cast.	Medium Severity	SpriteSheet.java	Line 21
-	Unnecessary type cast to int	Delete the unnecessary cast.	Medium Severity	SpriteSheet.java	Line 39
-	Unnecessary type cast to int	Delete the unnecessary cast.	Medium Severity	SpriteSheet.java	Line 41
+	Unnecessary upgraded cast to Integer	Delete the unnecessary cast.	Medium Severity	AudioHandler.java	Line 43
+	Unnecessary upgraded cast to int	Delete the unnecessary cast.	Medium Severity	GamePanel.java	Line 65
+	Unnecessary upgraded cast to int	Delete the unnecessary cast.	Medium Severity	SpriteSheet.java	Line 21
+	Unnecessary upgraded cast to int	Delete the unnecessary cast.	Medium Severity	SpriteSheet.java	Line 39
+	Unnecessary upgraded cast to int	Delete the unnecessary cast.	Medium Severity	SpriteSheet.java	Line 41

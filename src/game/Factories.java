@@ -9,9 +9,10 @@ public class Factories {
     private int selected, woodCost, rockCost;
 
     public Factories() {
+        selected = -1;
         factories = new LinkedList<Factory>();
-        woodCost = 50;
-        rockCost = 25;
+        woodCost = 10;
+        rockCost = 10;
     }
     public void draw(Canvas canvas, Paint paint){
         for (int i = 0; i < factories.size(); i++){
@@ -79,6 +80,17 @@ public class Factories {
             }
         }
     }
+    public boolean isBuildable(int x){
+        //if the space is open, it can build
+        boolean build = true;
+        for (int i = 0; i < factories.size(); i++){
+            if (Math.abs(x-factories.get(i).getX()) < factories.get(i).getSpriteWidth()*4){
+                build = false;
+                break;
+            }
+        }
+        return build;
+    }
     public int getSelectedIndex(){ return selected; }
     public int getWoodCost(){ return woodCost; }
     public int getRockCost(){ return rockCost; }
@@ -127,9 +139,10 @@ public class Factories {
                         sprite.getSpriteLeft(),	sprite.getSpriteTop(), width, height));
             }
             //update position
-            sprite.update(mainX+ factoryX, mainY+ factoryY);
-            if (showBorder) border.update(mainX+ factoryX -4, mainY+ factoryY -4);
+            sprite.update(mainX+factoryX-(width*2), mainY+ factoryY);
+            if (showBorder) border.update(mainX+factoryX-4-(width*2), mainY+ factoryY -4);
         }
+        public int getSpriteWidth(){ return sprite.getSpriteWidth(); }
         public int getMetalQuantity(){ return metals; }
         public int getX(){ return factoryX; }
         public int getY(){ return factoryY; }

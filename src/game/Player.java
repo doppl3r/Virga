@@ -14,6 +14,8 @@ public class Player {
     private int targetX;
     private int radius;
     private int objectX;
+    private int width;
+    private int height;
 
     private double x;
     private double y;
@@ -27,14 +29,19 @@ public class Player {
     private SpriteSheet arrow;
 
     public Player(int x, int y){
+        //test
+        wood = 100;
+        rocks = 100;
+        metal = 100;
+
         color = (int)(Math.random()*8);
         radius = 8;
         speed = 256;
         arrowYMAX = GamePanel.getHeight()-96;
         sprite = new SpriteSheet(GamePanel.textures.people, 8, 1, 0.0);
         arrow  = new SpriteSheet(GamePanel.textures.arrow , 1, 1, 0.0);
-        int width = sprite.getBitWidth();
-        int height = sprite.getBitHeight();
+        width = sprite.getBitWidth();
+        height = sprite.getBitHeight();
         this.x=x;
         this.y = GamePanel.getHeight() - sprite.getBitHeight()*4 - 32;
         sprite.build(this.x,this.y,width*8,height*4); //stretch player-width
@@ -60,6 +67,8 @@ public class Player {
                 targetX = -1;
                 Game.land.trees.farmMarked();
                 Game.land.rocks.farmMarked();
+                Game.land.mines.farmMarked();
+                Game.land.factories.farmMarked();
             }
         }
         //fade arrow
@@ -68,9 +77,47 @@ public class Player {
             arrowY -= 100*mod;
         }
         //update sprites
-        sprite.update(mainX+x, mainY+y);
-        arrow.update(mainX+arrowX, mainY+arrowY);
+        sprite.update(mainX+x-(width*4), mainY+y); //center horizontally = (width*4)
+        arrow.update(mainX+arrowX-(width*4), mainY+arrowY);
     }
+
+    public void buildTree(){
+        //splash the message of reduction
+        Game.gui.addSplashText("-"+Game.land.trees.getWoodCost(),
+            (int)x+GamePanel.game.getMainX()-16,GamePanel.getHeight()-48);
+        wood -= Game.land.trees.getWoodCost(); //subtract from inventory
+        Game.land.trees.add((int)x,(int)y, false);
+        Game.gui.resetGUI();
+    }
+
+    public void buildMine(){
+        //splash the message of reduction
+        Game.gui.addSplashText("-"+Game.land.mines.getWoodCost(),
+                (int)x+GamePanel.game.getMainX()-16,
+                GamePanel.getHeight()-80);
+        Game.gui.addSplashText("-"+Game.land.mines.getRockCost(),
+                (int)x+GamePanel.game.getMainX()-16,
+                GamePanel.getHeight()-48);
+        wood  -= Game.land.mines.getWoodCost(); //subtract from inventory
+        rocks -= Game.land.mines.getRockCost();
+        Game.land.mines.add((int)x);
+        Game.gui.resetGUI();
+    }
+
+    public void buildFactory(){
+        //splash the message of reduction
+        Game.gui.addSplashText("-"+Game.land.factories.getWoodCost(),
+                (int)x+GamePanel.game.getMainX()-16,
+                GamePanel.getHeight()-80);
+        Game.gui.addSplashText("-"+Game.land.factories.getRockCost(),
+                (int)x+GamePanel.game.getMainX()-16,
+                GamePanel.getHeight()-48);
+        wood  -= Game.land.factories.getWoodCost(); //subtract from inventory
+        rocks -= Game.land.factories.getRockCost();
+        Game.land.factories.add((int)x);
+        Game.gui.resetGUI();
+    }
+
     //Player input
     public void down(double x, double y){}
     public void move(double x, double y){}

@@ -1,21 +1,48 @@
 package game;
 
 import java.util.LinkedList;
+
+import textures.BitmapText;
 import textures.SpriteSheet;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
 public class Trees {
     private LinkedList<Tree> trees;
+    private SpriteSheet woodIcon;
+    private BitmapText text;
     private int selected, woodCost;
 
     public Trees(){
+        selected = -1;
         trees = new LinkedList<Tree>();
+        woodIcon = new SpriteSheet(GamePanel.textures.wood, 1, 1, 0.0);
+        text = new BitmapText();
         woodCost = 1;
     }
     public void draw(Canvas canvas, Paint paint){
         for (int i = 0; i < trees.size(); i++){
             trees.get(i).draw(canvas, paint);
+        }
+        //draw info
+        if (selected > -1){
+            for (int i = 0; i < trees.get(selected).getWoodQuantity(); i++){
+                woodIcon.resize(32,32);
+                woodIcon.update(16+(i*32),48);
+                woodIcon.draw(canvas);
+
+            }
+            text.draw("["+trees.get(selected).getWoodQuantity()+"/"+trees.get(selected).getMaxWoodQuantity()+"]",
+                16+(trees.get(selected).getWoodQuantity()*32)+6,
+                56, canvas, paint);
+            if (trees.get(selected).getWoodQuantity() < trees.get(selected).getMaxWoodQuantity()){
+                paint.setARGB(100,0,0,0);
+                canvas.drawRect(16, 48,
+                    16 +(int)(trees.get(selected).getTimerPercentage()*
+                        trees.get(selected).getWoodQuantity()*32),
+                    80,paint);
+                paint.setARGB(255,255,255,255);
+            }
         }
     }
     public void update(double mod, double mainX, double mainY){
@@ -23,7 +50,7 @@ public class Trees {
             trees.get(i).update(mod, mainX, mainY);
         }
     }
-    public void add(int x1, int y1){ trees.add(new Tree(x1, y1)); }
+    public void add(int x1, int y1, boolean random){ trees.add(new Tree(x1, y1, random)); }
     public void remove(int i){ trees.remove(i); }
     public void down(int x1, int y1){ }
     public void move(int x1, int y1, int difference){}
@@ -73,6 +100,17 @@ public class Trees {
             }
         }
     }
+    public boolean isBuildable(int x){
+        //if the space is open, it can build
+        boolean build = true;
+        for (int i = 0; i < trees.size(); i++){
+            if (Math.abs(x-trees.get(i).getX()) < trees.get(i).getSpriteWidth()*4){
+                build = false;
+                break;
+            }
+        }
+        return build;
+    }
     public int getSelectedIndex(){ return selected; }
     public int getWoodCost(){ return woodCost; }
     /*
@@ -84,19 +122,29 @@ public class Trees {
         private SpriteSheet shadow;
         private boolean showBorder;
         private boolean marked;
-        private double age;
-        private int type = 0; //0-3
+        private double timer; //current timer
+        private int timerRate; //how fast the timer goes by
+        private int maxTimer; //max time on grow
+        private int type; //0-3
         private int treeX;
         private int treeY;
-        private int wood;
+        private int maxWood; //max quantity
+        private int wood; //current quantity
+        private int width;
+        private int height;
 
-        public Tree(int x, int y){
-            type = (int)(Math.random()*4);
+        public Tree(int x, int y, boolean random){
+            maxTimer = 5000;
+            timerRate = 83; //at maxTime = 5000, 30 seconds = 167, 1 minutes = 83
+            if (random) type = (int)(Math.random()*4);
+            if (random) timer = (int)(Math.random()*maxTimer);
+            else timer = maxTimer;
+            maxWood = 4;
             wood = type+1; //set wood to stage of life
             sprite = new SpriteSheet(GamePanel.textures.trees, 6, 1, 0.0);
             shadow = new SpriteSheet(GamePanel.textures.trees, 6, 1, 0.0);
-            int width = sprite.getBitWidth();
-            int height = sprite.getBitHeight();
+            width = sprite.getBitWidth();
+            height = sprite.getBitHeight();
             //create border properties
             treeX = x;
             treeY = GamePanel.getHeight() - height*4 - 32;
@@ -110,15 +158,23 @@ public class Trees {
             border.build(x,treeY,((width+2)*4),(height+2)*4);
         }
         public void draw(Canvas canvas, Paint paint){
-            if (showBorder) canvas.drawBitmap(border.getBitmap(), border.getSpriteRect(), border.getDestRect(), paint);
+            if (showBorder){
+                //draw the border
+                canvas.drawBitmap(border.getBitmap(), border.getSpriteRect(), border.getDestRect(), paint);
+                //draw amount of resources
+
+            }
             canvas.drawBitmap(shadow.getBitmap(), shadow.getSpriteRect(), shadow.getDestRect(), paint);
             canvas.drawBitmap(sprite.getBitmap(), sprite.getSpriteRect(), sprite.getDestRect(), paint);
         }
         public void update(double mod, double mainX, double mainY){
-            sprite.update(mainX+treeX, mainY+treeY);
-            shadow.update(mainX+treeX, mainY+treeY+shadow.getSpriteHeight()*4);
-            if (showBorder) border.update(mainX+treeX-4, mainY+treeY-4);
+            grow(mod);
+            sprite.update(mainX+treeX-(width*2), mainY+treeY);
+            shadow.update(mainX+treeX-(width*2), mainY+treeY+shadow.getSpriteHeight()*4);
+            if (showBorder) border.update(mainX+treeX-4-(width*2), mainY+treeY-4);
         }
+        public int getSpriteWidth(){ return sprite.getSpriteWidth(); }
+        public int getMaxWoodQuantity(){ return maxWood; }
         public int getWoodQuantity(){ return wood; }
         public int getX(){ return treeX; }
         public int getY(){ return treeY; }
@@ -137,5 +193,23 @@ public class Trees {
             }
             return select;
         }
+        public void grow(double mod){
+            //grow if the timer is ready
+            if (wood < maxWood){ //only check upgrades if under development
+                if (timer > 0) timer -= (mod*timerRate); //tick the tock
+                else { //if it's ready to grow, do this stuff
+                    timer = maxTimer; //reset ticker
+                    type++;
+                    wood = type + 1;
+                    sprite.animate(type);
+                    //re-render border
+                    border = new SpriteSheet(GamePanel.textures.renderBorder(sprite.getBitmap(),
+                        sprite.getSpriteLeft(),
+                        sprite.getSpriteTop(), width, height), 1, 1, 0.0);
+                    border.build(treeX,treeY,((width+2)*4),(height+2)*4);
+                }
+            }
+        }
+        public double getTimerPercentage(){ return 1 - (timer/maxTimer); }
     }
 }
