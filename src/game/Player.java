@@ -30,9 +30,9 @@ public class Player {
 
     public Player(int x, int y){
         //test
-        wood = 100;
+        /*wood = 100;
         rocks = 100;
-        metal = 100;
+        metal = 100;*/
 
         color = (int)(Math.random()*8);
         radius = 8;
@@ -83,39 +83,71 @@ public class Player {
 
     public void buildTree(){
         //splash the message of reduction
-        Game.gui.addSplashText("-"+Game.land.trees.getWoodCost(),
-            (int)x+GamePanel.game.getMainX()-16,GamePanel.getHeight()-48);
-        wood -= Game.land.trees.getWoodCost(); //subtract from inventory
-        Game.land.trees.add((int)x,(int)y, false);
-        Game.gui.resetGUI();
+        if (wood >= Game.land.trees.getWoodCost()){
+            Game.gui.addSplashText("-"+Game.land.trees.getWoodCost()+" Wood",
+                (int)x+GamePanel.game.getMainX()-64,GamePanel.getHeight()-48);
+            wood -= Game.land.trees.getWoodCost(); //subtract from inventory
+            Game.land.trees.add((int)x,(int)y, false);
+            Game.gui.resetGUI();
+        }
+        else {
+            Game.gui.addSplashText("Insufficient resources!",
+                    (int)x+GamePanel.game.getMainX()-192,
+                    GamePanel.getHeight()-80);
+            Game.gui.addSplashText("Wood x"+Game.land.trees.getWoodCost(),
+                    (int)x+GamePanel.game.getMainX()-64,
+                    GamePanel.getHeight()-48);
+        }
     }
 
     public void buildMine(){
         //splash the message of reduction
-        Game.gui.addSplashText("-"+Game.land.mines.getWoodCost(),
-                (int)x+GamePanel.game.getMainX()-16,
+        if (wood >= Game.land.mines.getWoodCost() &&
+            rocks>= Game.land.mines.getRockCost()){
+            Game.gui.addSplashText("-"+Game.land.mines.getWoodCost()+" Wood",
+                    (int)x+GamePanel.game.getMainX()-64,
+                    GamePanel.getHeight()-80);
+            Game.gui.addSplashText("-"+Game.land.mines.getRockCost()+" Rocks",
+                    (int)x+GamePanel.game.getMainX()-64,
+                    GamePanel.getHeight()-48);
+            wood  -= Game.land.mines.getWoodCost(); //subtract from inventory
+            rocks -= Game.land.mines.getRockCost();
+            Game.land.mines.add((int)x);
+            Game.gui.resetGUI();
+        }
+        else {
+            Game.gui.addSplashText("Insufficient resources!",
+                (int)x+GamePanel.game.getMainX()-192,
                 GamePanel.getHeight()-80);
-        Game.gui.addSplashText("-"+Game.land.mines.getRockCost(),
-                (int)x+GamePanel.game.getMainX()-16,
+            Game.gui.addSplashText("Wood x"+Game.land.mines.getWoodCost()+", Rocks x"+
+                Game.land.mines.getRockCost(),(int)x+GamePanel.game.getMainX()-160,
                 GamePanel.getHeight()-48);
-        wood  -= Game.land.mines.getWoodCost(); //subtract from inventory
-        rocks -= Game.land.mines.getRockCost();
-        Game.land.mines.add((int)x);
-        Game.gui.resetGUI();
+        }
     }
 
     public void buildFactory(){
         //splash the message of reduction
-        Game.gui.addSplashText("-"+Game.land.factories.getWoodCost(),
-                (int)x+GamePanel.game.getMainX()-16,
+        if (wood >= Game.land.factories.getWoodCost() &&
+            rocks>= Game.land.factories.getRockCost()){
+            Game.gui.addSplashText("-"+Game.land.factories.getWoodCost()+" Wood",
+                    (int)x+GamePanel.game.getMainX()-64,
+                    GamePanel.getHeight()-80);
+            Game.gui.addSplashText("-"+Game.land.factories.getRockCost()+" Rocks",
+                    (int)x+GamePanel.game.getMainX()-64,
+                    GamePanel.getHeight()-48);
+            wood  -= Game.land.factories.getWoodCost(); //subtract from inventory
+            rocks -= Game.land.factories.getRockCost();
+            Game.land.factories.add((int)x);
+            Game.gui.resetGUI();
+        }
+        else{
+            Game.gui.addSplashText("Insufficient resources!",
+                (int)x+GamePanel.game.getMainX()-192,
                 GamePanel.getHeight()-80);
-        Game.gui.addSplashText("-"+Game.land.factories.getRockCost(),
-                (int)x+GamePanel.game.getMainX()-16,
+            Game.gui.addSplashText("Wood x"+Game.land.factories.getWoodCost()+", Rocks x"+
+                Game.land.factories.getRockCost(),(int)x+GamePanel.game.getMainX()-160,
                 GamePanel.getHeight()-48);
-        wood  -= Game.land.factories.getWoodCost(); //subtract from inventory
-        rocks -= Game.land.factories.getRockCost();
-        Game.land.factories.add((int)x);
-        Game.gui.resetGUI();
+        }
     }
 
     //Player input

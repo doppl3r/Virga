@@ -2,6 +2,7 @@ package game;
 
 import java.util.LinkedList;
 
+import android.util.Log;
 import textures.BitmapText;
 import textures.SpriteSheet;
 import android.graphics.Canvas;
@@ -21,27 +22,31 @@ public class Trees {
         woodCost = 1;
     }
     public void draw(Canvas canvas, Paint paint){
+        int selected = this.selected; //this.selected changes often...that's bad so we need a fixed index :D
         for (int i = 0; i < trees.size(); i++){
             trees.get(i).draw(canvas, paint);
         }
         //draw info
-        if (selected > -1){
-            for (int i = 0; i < trees.get(selected).getWoodQuantity(); i++){
-                woodIcon.resize(32,32);
-                woodIcon.update(16+(i*32),48);
-                woodIcon.draw(canvas);
+        if (trees.size() > 0){
+            if (selected > -1 && selected < trees.size()){ //other objects might need this fix
+                for (int i = 0; i < trees.get(selected).getWoodQuantity(); i++){
+                    woodIcon.resize(32,32);
+                    woodIcon.update(16+(i*32),48);
+                    woodIcon.draw(canvas);
 
-            }
-            text.draw("["+trees.get(selected).getWoodQuantity()+"/"+trees.get(selected).getMaxWoodQuantity()+"]",
-                16+(trees.get(selected).getWoodQuantity()*32)+6,
-                56, canvas, paint);
-            if (trees.get(selected).getWoodQuantity() < trees.get(selected).getMaxWoodQuantity()){
-                paint.setARGB(100,0,0,0);
-                canvas.drawRect(16, 48,
-                    16 +(int)(trees.get(selected).getTimerPercentage()*
-                        trees.get(selected).getWoodQuantity()*32),
-                    80,paint);
-                paint.setARGB(255,255,255,255);
+                }
+                text.draw("["+trees.get(selected).getWoodQuantity()+"/"+trees.get(selected).getMaxWoodQuantity()+"]",
+                    16+(trees.get(selected).getWoodQuantity()*32)+6,
+                    56, canvas, paint);
+                    //Log.d("hey",""+selected);
+                if (trees.get(selected).getWoodQuantity() < trees.get(selected).getMaxWoodQuantity()){
+                    paint.setARGB(150,0,0,0);
+                    canvas.drawRect(16, 48,
+                        16 +(int)(trees.get(selected).getTimerPercentage()*
+                            trees.get(selected).getWoodQuantity()*32),
+                        80,paint);
+                    paint.setARGB(255,255,255,255);
+                }
             }
         }
     }
@@ -70,7 +75,6 @@ public class Trees {
                 else{
                     Game.gui.resetGUI();
                     unMarkAll();
-                    selected = -1;
                 }
             }
         }
@@ -91,8 +95,8 @@ public class Trees {
         if (selected > -1){
             if (trees.get(selected).isMarked()){
                 Game.land.player.addWood(trees.get(selected).getWoodQuantity());
-                Game.gui.addSplashText("+"+(trees.get(selected).getWoodQuantity()),
-                    Game.land.player.getObjectX()+GamePanel.game.getMainX()-16,
+                Game.gui.addSplashText("+"+(trees.get(selected).getWoodQuantity())+" Wood",
+                    Game.land.player.getObjectX()+GamePanel.game.getMainX()-64,
                     GamePanel.getHeight()-48);
                 trees.remove(selected);
                 Game.gui.resetGUI();
@@ -104,7 +108,7 @@ public class Trees {
         //if the space is open, it can build
         boolean build = true;
         for (int i = 0; i < trees.size(); i++){
-            if (Math.abs(x-trees.get(i).getX()) < trees.get(i).getSpriteWidth()*4){
+            if (Math.abs(x-trees.get(i).getX()) < trees.get(i).getSpriteWidth()*2){
                 build = false;
                 break;
             }
@@ -135,7 +139,7 @@ public class Trees {
 
         public Tree(int x, int y, boolean random){
             maxTimer = 5000;
-            timerRate = 83; //at maxTime = 5000, 30 seconds = 167, 1 minutes = 83
+            timerRate = 167; //at maxTime = 5000, 30 seconds = 167, 1 minutes = 83
             if (random) type = (int)(Math.random()*4);
             if (random) timer = (int)(Math.random()*maxTimer);
             else timer = maxTimer;

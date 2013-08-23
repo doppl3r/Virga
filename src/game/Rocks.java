@@ -21,20 +21,23 @@ public class Rocks {
         rockCost = 0; //wut
 	}
 	public void draw(Canvas canvas, Paint paint){
+        int selected = this.selected;
 		for (int i = 0; i < rocks.size(); i++){
 			rocks.get(i).draw(canvas, paint);
 		}
         //draw info
-        if (selected > -1){
-            for (int i = 0; i < rocks.get(selected).getRockQuantity(); i++){
-                rockIcon.resize(32, 32);
-                rockIcon.update(16 + (i * 32), 48);
-                rockIcon.draw(canvas);
+        if (rocks.size() > 0){
+            if (selected > -1 && selected < rocks.size()){
+                for (int i = 0; i < rocks.get(selected).getRockQuantity(); i++){
+                    rockIcon.resize(32, 32);
+                    rockIcon.update(16 + (i * 32), 48);
+                    rockIcon.draw(canvas);
 
+                }
+                text.draw("["+rocks.get(selected).getRockQuantity()+"]",
+                    16+(rocks.get(selected).getRockQuantity()*32)+6,
+                    56, canvas, paint);
             }
-            text.draw("["+rocks.get(selected).getRockQuantity()+"]",
-                16+(rocks.get(selected).getRockQuantity()*32)+6,
-                56, canvas, paint);
         }
 	}
 	public void update(double mod, double mainX, double mainY){
@@ -83,8 +86,8 @@ public class Rocks {
         if (selected > -1){
             if (rocks.get(selected).isMarked()){
                 Game.land.player.addRocks(rocks.get(selected).getRockQuantity());
-                Game.gui.addSplashText("+"+(rocks.get(selected).getRockQuantity()),
-                        Game.land.player.getObjectX()+GamePanel.game.getMainX()-16,
+                Game.gui.addSplashText("+"+(rocks.get(selected).getRockQuantity()+" Rock"),
+                        Game.land.player.getObjectX()+GamePanel.game.getMainX()-64,
                         GamePanel.getHeight()-48);
                 rocks.remove(selected);
                 Game.gui.resetGUI();
@@ -96,7 +99,7 @@ public class Rocks {
         //if the space is open, it can build
         boolean build = true;
         for (int i = 0; i < rocks.size(); i++){
-            if (Math.abs(x-rocks.get(i).getX()) < rocks.get(i).getSpriteWidth()*4){
+            if (Math.abs(x-rocks.get(i).getX()) < rocks.get(i).getSpriteWidth()*2){
                 build = false;
                 break;
             }

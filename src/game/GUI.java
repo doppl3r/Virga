@@ -83,7 +83,7 @@ public class GUI {
 	public void update(double mod){
         //update splash texts
 	    for (int i = 0; i < splashText.size(); i++){
-            splashText.get(i).fadeUp(25*mod);
+            splashText.get(i).fadeUp(15*mod);
             if (splashText.get(i).getFade() <= 0) splashText.remove(i);
         }
         //update buttons
@@ -124,12 +124,12 @@ public class GUI {
             Game.land.trees.markSelected(true);
             Game.land.rocks.markSelected(true);
             Game.land.mines.markSelected(true, false);
-            Game.land.mines.markSelected(true, false);
+            Game.land.factories.markSelected(true, false);
             Game.land.player.setTarget(Game.land.player.getObjectX(),0,0);
         }
         else if (upgrade.up(x1,y1)){
             Game.land.mines.markSelected(true, true);
-            Game.land.mines.markSelected(true, true);
+            Game.land.factories.markSelected(true, true);
             Game.land.player.setTarget(Game.land.player.getObjectX(),0,0);
         }
         else if (exit.up(x1,y1)){
@@ -166,6 +166,7 @@ public class GUI {
             Game.land.player.getRocks() >= Game.land.factories.getRockCost()) addFact=true;
 
         //compile settings
-        setGUI(addTree,addMine,addFact,false,false,false);
+        //setGUI(addTree,addMine,addFact,false,false,false);
+        setGUI(true,true,true,false,false,false);
     }
 }

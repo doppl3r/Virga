@@ -1,6 +1,7 @@
 package game;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.Log;
 
 public class Environment {
@@ -16,6 +17,7 @@ public class Environment {
 	private double rate2;
 	private double rate3;
 	private double rate4;
+    private Rect edgeRect;
 	private Mountains layer1;
 	private Mountains layer2;
 	private Mountains layer3;
@@ -40,6 +42,7 @@ public class Environment {
 		rate2 = 0.50;
 		rate3 = 0.75;
 		rate4 = 1.0;
+        edgeRect = new Rect();
 		factories = new Factories();
 		mines = new Mines();
 		trees = new Trees();
@@ -50,7 +53,7 @@ public class Environment {
 		//factories.add(layer4.getWidth() / 2); //add factory_wood to the center of the map
 		for (int i = 0; i < 24; i++)
 		trees.add((int)(Math.random()*layer4.getWidth()), 0, true);
-		for (int i = 0; i < 8; i++) 
+		for (int i = 0; i < 12; i++)
 		rocks.add((int)(Math.random()*layer4.getWidth()), 0);
 		clouds.construct(layer4.getWidth());
 		//draw mountains
@@ -70,6 +73,13 @@ public class Environment {
 		mines.draw(canvas, paint);
         //player
         player.draw(canvas, paint);
+        //end of world
+        if (mainX-(downX-dragX) > 0 ||
+            mainX-(downX-dragX) < -(layer4.getWidth() - GamePanel.getWidth())){
+            paint.setARGB(255,0,0,0);
+            canvas.drawRect(edgeRect, paint);
+        }
+        else paint.setARGB(255,255,255,255);
 	}
 	public void update(double mod){
 		//mountains
@@ -85,6 +95,19 @@ public class Environment {
 		rocks.update(mod,  (mainX-(downX-dragX))*rate4, mainY);
         //player
         player.update(mod,  (mainX-(downX-dragX))*rate4, mainY);
+        //update edge rectangle
+        if (mainX-(downX-dragX) > 0){
+            edgeRect.left=0;
+            edgeRect.top=0;
+            edgeRect.right=mainX-(downX-dragX);
+            edgeRect.bottom=GamePanel.getHeight();
+        }
+        else if (mainX-(downX-dragX) < -(layer4.getWidth() - GamePanel.getWidth())){
+            edgeRect.left=mainX-(downX-dragX)+(layer4.getWidth());
+            edgeRect.top=0;
+            edgeRect.right=GamePanel.getWidth();
+            edgeRect.bottom=GamePanel.getHeight();
+        }
 	}
 	public void down(int x1, int y1){
         if (!Game.gui.isPressed()){
@@ -100,11 +123,6 @@ public class Environment {
         //Log.d("hey", "" + Game.gui.move(x1, y1));
         if (!Game.gui.isPressed()){
             dragX = x1;
-            if (mainX-(downX-dragX) > 0){ mainX = 0; downX = x1;}
-            else if (mainX-(downX-dragX) < -(layer4.getWidth() - GamePanel.getWidth())) {
-                mainX = -(layer4.getWidth() - GamePanel.getWidth());
-                downX = x1;
-            }
             factories.move(x1, y1, Math.abs(downX - dragX));
             mines.move(x1, y1, Math.abs(downX-dragX));
             trees.move(x1, y1, Math.abs(downX-dragX));
@@ -149,7 +167,15 @@ public class Environment {
             Game.gui.setPressed(false);
             //Log.d("hey","pressed: "+Game.gui.isPressed());
         }
-
+        if (mainX-(downX-dragX) > 0){
+            mainX = 0;
+            downX = x1;
+        }
+        else if (mainX-(downX-dragX) < -(layer4.getWidth() - GamePanel.getWidth())) {
+            mainX = -(layer4.getWidth() - GamePanel.getWidth());
+            downX = x1;
+        }
+        resetEdgeRect();
 		downX = downY = dragX = dragY = 0;
 	}
 	public void deselectAll(int i){
@@ -220,4 +246,5 @@ public class Environment {
     public int getDragDifference(){ return (downX - dragX); }
     public int getRawX(){ return mainX - (downX - dragX); }
 	public int getObjectiveX(){ return objectiveX; }
+    public void resetEdgeRect(){ edgeRect.top=edgeRect.right=edgeRect.bottom=edgeRect.left=0; }
 }

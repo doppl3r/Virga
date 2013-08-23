@@ -16,13 +16,41 @@ public class Mines {
 	public Mines() {
         selected = -1;
 		mines = new LinkedList<Mine>();
+        rockIcon = new SpriteSheet(GamePanel.textures.rock, 1, 1, 0.0);
+        text = new BitmapText();
         woodCost = 5;
         rockCost = 5;
 	}
 	public void draw(Canvas canvas, Paint paint){
+        int selected = this.selected;
 		for (int i = 0; i < mines.size(); i++){
 			mines.get(i).draw(canvas, paint);
 		}
+        //draw info
+        if (mines.size() > 0){
+            if (selected > -1 && selected < mines.size()){
+                int fix=0;
+                if (mines.get(selected).getRockQuantity() <= 0) fix = 1;
+                for (int i = 0; i < mines.get(selected).getRockQuantity()+fix; i++){
+                    rockIcon.resize(32, 32);
+                    rockIcon.update(16 + (i * 32), 48);
+                    rockIcon.draw(canvas);
+
+                }
+                text.draw("["+mines.get(selected).getRockQuantity()+"/"+mines.get(selected).getMaxRockQuantity()+"]",
+                        16+((mines.get(selected).getRockQuantity()+fix)*32)+6,
+                        56, canvas, paint);
+
+                if (mines.get(selected).getRockQuantity() < mines.get(selected).getMaxRockQuantity()) {
+                    paint.setARGB(150, 0, 0, 0);
+                    canvas.drawRect(16, 48,
+                            16 + (int) (mines.get(selected).getTimerPercentage() *
+                                    (mines.get(selected).getRockQuantity() + fix) * 32),
+                            80, paint);
+                    paint.setARGB(255, 255, 255, 255);
+                }
+            }
+        }
 	}
 	public void update(double mod, double mainX, double mainY){
 		for (int i = 0; i < mines.size(); i++){
@@ -44,7 +72,7 @@ public class Mines {
                             false,
                             false,
                             mines.get(i).getRockQuantity()>0, //farm rocks from mine
-                            mines.get(i).isUpgradable(),
+                            true, //was mines.get(i).isUpgradable()
                             true);
                     up = true;
                     selected = i;
@@ -76,13 +104,26 @@ public class Mines {
             if (mines.get(selected).isMarked()){
                 if (!upgrade){
                     Game.land.player.addRocks(mines.get(selected).getRockQuantity());
-                    Game.gui.addSplashText("+"+(mines.get(selected).getRockQuantity()),
-                            Game.land.player.getObjectX()+GamePanel.game.getMainX()-16,
+                    Game.gui.addSplashText("+"+(mines.get(selected).getRockQuantity())+" Rock",
+                            Game.land.player.getObjectX()+GamePanel.game.getMainX()-64,
                             GamePanel.getHeight()-48);
                     mines.get(selected).setRockQuantity(0);
                 }
-                else mines.get(selected).upgrade();
+                else{
+                    if (mines.get(selected).isUpgradable()){
+                        mines.get(selected).upgrade();
+                    }
+                    else {
+                        Game.gui.addSplashText("Insufficient resources!",
+                                Game.land.player.getX()+GamePanel.game.getMainX()-192,
+                                GamePanel.getHeight()-80);
+                        Game.gui.addSplashText("Metal x"+mines.get(selected).getMetalUpgradeCost(),
+                                Game.land.player.getX()+GamePanel.game.getMainX()-64,
+                                GamePanel.getHeight()-48);
+                    }
+                }
 
+                //mines.get(selected).resetTimer();
                 deselectAll();
                 unMarkAll();
                 Game.gui.resetGUI();
@@ -111,10 +152,10 @@ public class Mines {
 		private SpriteSheet border;
 		private boolean showBorder;
         private boolean marked;
+        private boolean upgraded; //was 'type'
 		private double maxAnimationTime = 10;
 		private double animationTime = maxAnimationTime;
-		private boolean upgraded; //was 'type'
-		private double rate = 200;
+		private double rate;
         private double timer;
         private int timerRate;
         private int maxTimer;
@@ -129,7 +170,8 @@ public class Mines {
 		public Mine(int x){
             rocks = 1;
             timer = maxTimer = 5000;
-            timerRate = 83; //1 minute iterations
+            rate = 400; //animation speed
+            timerRate = 334; //167 = 1 minute iterations
             maxRocks = 5;
             metalUpgradeCost = 10;
 
@@ -167,7 +209,9 @@ public class Mines {
 			if (showBorder) border.update(mainX+mineX-4-(width*2), mainY+mineY-4);
 		}
         public int getSpriteWidth(){ return sprite.getSpriteWidth(); }
+        public int getMaxRockQuantity(){ return maxRocks; }
         public int getRockQuantity(){ return rocks; }
+        public int getMetalUpgradeCost(){ return metalUpgradeCost; }
 		public int getX(){ return mineX; }
 		public int getY(){ return mineY; }
 		public boolean getUpgraded(){ return upgraded; }
@@ -178,6 +222,7 @@ public class Mines {
 		public void showBorder(boolean show){ showBorder = show; if (show) border.resetDest(); }
         public void setMark(boolean marked){ this.marked=marked; }
         public void setRockQuantity(int q){ rocks = q; }
+        public void resetTimer(){ timer = maxTimer; }
         public boolean isMarked(){ return marked; }
         public boolean isUpgradable(){ return Game.land.player.getMetal() >= metalUpgradeCost && !upgraded; }
 		public boolean select(int x, int y){
@@ -200,7 +245,7 @@ public class Mines {
                             false,
                             false,
                             getRockQuantity()>0, //farm rocks from mine
-                            isUpgradable(),
+                            true, //was isUpgradable();
                             true);
                     }
                 }
@@ -208,13 +253,14 @@ public class Mines {
         }
         public void upgrade(){
             if (!upgraded){
+                timerRate = 668; //15 seconds iteration
                 upgraded = true;
                 maxRocks = 10;
-                rate = 400;
+                rate = 800;
                 Game.gui.addSplashText("Upgraded!",
                         Game.land.player.getObjectX()+GamePanel.game.getMainX()-64,
                         GamePanel.getHeight()-48);
-                timerRate = 167; //30 seconds iteration
+
                 Game.land.player.addMetal(-metalUpgradeCost);
                 sprite = new SpriteSheet(GamePanel.textures.mine_metal, 6, 6, 0.5);
                 sprite.build(mineX,mineY,width*4,height*4);
@@ -226,5 +272,6 @@ public class Mines {
                 border.build(mineX,mineY,((width+2)*4),(height+2)*4);
             }
         }
+        public double getTimerPercentage(){ return 1 - (timer/maxTimer); }
 	}
 }
